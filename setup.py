@@ -37,7 +37,7 @@ setup(
     packages=['svupdater'],
     entry_points={
         'console_scripts': [
-            'updater-supervisor=svupdater:main'
+            'updater-supervisor=svupdater.__main__:main'
             ]
         }
 )
