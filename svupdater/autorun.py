@@ -22,10 +22,12 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+import typing
 from uci import UciExceptionNotFound
 from euci import EUci
 
-def enabled():
+
+def enabled() -> typing.Optional[bool]:
     """Returns True if updater can be automatically started by various system
     utils. This includes automatic periodic execution, after-boot recovery and
     other tools call to configuration aplication. This returns None if no
@@ -41,16 +43,16 @@ def enabled():
             return None
 
 
-def set_enabled(enabled):
-    """Set value that can be later received with enabled function.
+def set_enabled(enable: bool):
+    """Set value that can be later received with enable function.
     It sets uci configuration value: updater.autorun.enable
     """
     with EUci() as uci:
         uci.set('updater', 'autorun', 'autorun')
-        uci.set_boolean('updater', 'autorun', 'enabled', enabled)
+        uci.set_boolean('updater', 'autorun', 'enable', enable)
 
 
-def approvals():
+def approvals() -> bool:
     """Returns True if updater approvals are enabled.
     Relevant uci configuration is: updater.autorun.approvals
     """
@@ -61,7 +63,7 @@ def approvals():
             return False  # No option means disabled
 
 
-def set_approvals(enabled):
+def set_approvals(enabled: bool):
     """Set value that can later be received by enabled function.
     This is relevant to uci config: updater.autorun.approvals
     """
@@ -70,7 +72,7 @@ def set_approvals(enabled):
         uci.set_boolean('updater', 'autorun', 'approvals', enabled)
 
 
-def auto_approve_time():
+def auto_approve_time() -> typing.Optional[int]:
     """Returns number of hours before automatic approval is granted. If no
     approval time is configured then this function returns None.
     This is releavant to uci config: updater.autorun.auto_approve_time
@@ -83,13 +85,13 @@ def auto_approve_time():
             return 0
 
 
-def set_auto_approve_time(approve_time):
+def set_auto_approve_time(approve_time: typing.Optional[int]):
     """Sets time in hours after which approval is granted. You can provide None
     or value that is less or equal to zero and in that case this feature is
     disabled and if approvals are enabled only manual approve can be granted.
     """
     with EUci() as uci:
-        if approve_time > 0:
+        if approve_time and approve_time > 0:
             uci.set('updater', 'autorun', 'autorun')
             uci.set_integer('updater', 'autorun', 'auto_approve_time', approve_time)
         else:
