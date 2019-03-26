@@ -28,7 +28,8 @@ from euci import EUci
 def enabled():
     """Returns True if updater can be automatically started by various system
     utils. This includes automatic periodic execution, after-boot recovery and
-    other tools call to configuration aplication.
+    other tools call to configuration aplication. This returns None if no
+    configuration was set so it is possible to catch no configuration case.
     Relevant uci configuration is: updater.autorun.enable
     """
     with EUci() as uci:
@@ -36,7 +37,9 @@ def enabled():
             # TODO use EUci instead of this retype (as this is not perfect)
             return uci.get_boolean("updater", "autorun", "enabled")
         except UciExceptionNotFound:
-            return False  # No option means disabled
+            # No option means disabled but instead of False we return None to
+            # allow to handle no setting situation.
+            return None
 
 
 def set_enabled(enabled):
