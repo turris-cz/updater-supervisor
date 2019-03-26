@@ -3,7 +3,7 @@
 """
 
 # Path where we should found supervisor pid lock file
-PID_FILE_PATH = "/tmp/updater-supervisor.pid"
+PID_FILE_PATH = "/var/run/updater-supervisor.pid"
 # Path where failure dumps are dumped
 FAIL_DUMP_PATH = "/var/log/updater-dump"
 # This is path to opkg lock
@@ -48,4 +48,4 @@ L10N_FILE = "/usr/share/updater/l10n_supported"
 PKGLISTS_FILE = "/usr/share/updater/pkglists.json"
 
 # Hooks file containing commands to be run after updater execution finished.
-POSTRUN_HOOK_FILE = "/tmp/updater-postrun-hook"
+POSTRUN_HOOK_FILE = "/var/run/updater-postrun-hook"
