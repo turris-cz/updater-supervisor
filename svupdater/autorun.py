@@ -34,7 +34,6 @@ def enabled():
     """
     with EUci() as uci:
         try:
-            # TODO use EUci instead of this retype (as this is not perfect)
             return uci.get_boolean("updater", "autorun", "enabled")
         except UciExceptionNotFound:
             # No option means disabled but instead of False we return None to
@@ -57,7 +56,6 @@ def approvals():
     """
     with EUci() as uci:
         try:
-            # TODO use EUci instead of this retype (as this is not perfect)
             return uci.get_boolean("updater", "autorun", "approvals")
         except UciExceptionNotFound:
             return False  # No option means disabled
