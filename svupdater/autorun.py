@@ -36,7 +36,7 @@ def enabled() -> typing.Optional[bool]:
     """
     with EUci() as uci:
         try:
-            return uci.get_boolean("updater", "autorun", "enabled")
+            return uci.get_boolean("updater", "autorun", "enable")
         except UciExceptionNotFound:
             # No option means disabled but instead of False we return None to
             # allow to handle no setting situation.
