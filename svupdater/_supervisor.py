@@ -112,7 +112,7 @@ class Supervisor:
             if not line:
                 break
             if self.verbose:
-                print(line.decode(sys.getdefaultencoding()), end='')
+                print(line, end='')
                 sys.stdout.flush()
 
     def _stderr(self):
