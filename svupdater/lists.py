@@ -39,11 +39,11 @@ def pkglists(lang=None):
     Return pkglists are in dictionary where key is name of pkglist and value is
     another dictionary with following content:
     "enabled": This is boolean value containing info if pkglist is enabled.
-    "hidden": This is boolean value specifying if pkglist is pkg visible.
-    "title": This is title text describing pkglist (human readable name). This
-        field can be None if "hidden" field is set to True.
-    "message": This is human readable description of given pkglist. This can be
-        None if "hidden" is set to True.
+    "hidden": This is boolean value specifying if pkglist is visible.
+    "official": This is boolean value specifying if pkglist is supported.
+    "title": This is title text describing pkglist (human readable name).
+    "message": This is human readable description of given pkglist.
+    "url": Optional URL to documentation. This can be None if not provided.
     """
     result = dict()
 
@@ -56,13 +56,14 @@ def pkglists(lang=None):
         with open(PKGLISTS_FILE, 'r') as file:
             ldul = json.load(file)
             for name, lst in ldul.items():
-                visible = lst['visible']
                 result[name] = {
-                    "title": trans.gettext(lst['title']) if 'title' in lst else None,
-                    "message": trans.gettext(lst['description']) if 'description' in lst else None,
                     "enabled": False,
-                    "hidden": not visible
-                    }
+                    "title": trans.gettext(lst['title']),
+                    "message": trans.gettext(lst['description']),
+                    "hidden": not lst.get('visible', True),
+                    "official": lst.get('official', False),
+                    "url": lst.get('url'),
+                }
 
     with Uci() as uci:
         try:
