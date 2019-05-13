@@ -99,13 +99,3 @@ def update_pkglists(lists):
     with Uci() as uci:
         uci.set('updater', 'turris', 'turris')
         uci.set('updater', 'turris', 'pkglists', tuple(lists))
-
-
-def userlists(lang=None):
-    """Backward compatibility API. Please use pkglists instead."""
-    return pkglists(lang)
-
-
-def update_userlists(lists):
-    """Backward compatibility API. Please use update_pkglists instead."""
-    update_pkglists(lists)
