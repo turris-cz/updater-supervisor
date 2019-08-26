@@ -3,4 +3,4 @@
 # updater-supervisor. But when updater does something to system it's most probable
 # that it invalidated current approval request. So this script just removes it
 # every time update proceeds.
-rm -f /usr/share/updater/approvals
+rm -f "$ROOT_DIR/usr/share/updater/approvals"
