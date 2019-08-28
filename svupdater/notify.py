@@ -51,8 +51,8 @@ def failure(exit_code, trace):
     if exit_code == 0 and not os.path.isfile(PKGUPDATE_ERROR_LOG):
         return
 
-    msg_en = "Updater selhal: "
-    msg_cs = "Updater failed: "
+    msg_cs = "Updater selhal: "
+    msg_en = "Updater failed: "
 
     if os.path.isfile(PKGUPDATE_ERROR_LOG):
         with open(PKGUPDATE_ERROR_LOG, 'r') as file:
