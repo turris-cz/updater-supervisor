@@ -27,7 +27,7 @@ from setuptools import setup
 
 setup(
     name='svupdater',
-    version='1.0.2',
+    version='1.2',
     description="Supervising application and library for updater-ng.",
     url="https://gitlab.labs.nic.cz/turris/updater/supervisor",
     author="CZ.NIC, z. s. p. o.",
@@ -38,6 +38,6 @@ setup(
     entry_points={
         'console_scripts': [
             'updater-supervisor=svupdater.__main__:main'
-            ]
-        }
+        ]
+    }
 )
