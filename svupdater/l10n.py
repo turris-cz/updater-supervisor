@@ -23,12 +23,13 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os
-from uci import Uci, UciExceptionNotFound
+import typing
+from euci import EUci
 from .const import L10N_FILE
 from .exceptions import UpdaterNoSuchLangError
 
 
-def languages():
+def languages() -> typing.Dict[str, bool]:
     """Returns dict with all available l10n translations for system packages.
     """
     result = dict()
@@ -40,19 +41,15 @@ def languages():
                     continue  # ignore empty lines
                 result[line.strip()] = False
 
-    with Uci() as uci:
-        try:
-            l10n_enabled = uci.get("updater", "l10n", "langs")
-        except (UciExceptionNotFound, KeyError):
-            # If we fail to get that section then just ignore
-            return result
+    with EUci() as uci:
+        l10n_enabled = uci.get("updater", "l10n", "langs", list=True, default=[])
     for lang in l10n_enabled:
         result[lang] = True
 
     return result
 
 
-def update_languages(langs):
+def update_languages(langs: typing.Iterable[str]):
     """Updates what languages should be installed to system.
     langs is expected to be a list of strings where values are ISO languages
     codes.
@@ -71,6 +68,6 @@ def update_languages(langs):
                 "Can't enable unsupported language code:" + str(lang))
 
     # Set
-    with Uci() as uci:
+    with EUci() as uci:
         uci.set('updater', 'l10n', 'l10n')
-        uci.set('updater', 'l10n', 'langs', tuple(langs))
+        uci.set('updater', 'l10n', 'langs', langs)

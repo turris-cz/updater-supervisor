@@ -23,8 +23,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import typing
-from uci import UciExceptionNotFound
-from euci import EUci
+from euci import EUci, UciExceptionNotFound
 
 
 def enabled() -> typing.Optional[bool]:
@@ -36,7 +35,7 @@ def enabled() -> typing.Optional[bool]:
     """
     with EUci() as uci:
         try:
-            return uci.get_boolean("updater", "autorun", "enable")
+            return uci.get("updater", "autorun", "enable", dtype=bool)
         except UciExceptionNotFound:
             # No option means disabled but instead of False we return None to
             # allow to handle no setting situation.
@@ -49,7 +48,7 @@ def set_enabled(enable: bool):
     """
     with EUci() as uci:
         uci.set('updater', 'autorun', 'autorun')
-        uci.set_boolean('updater', 'autorun', 'enable', enable)
+        uci.set('updater', 'autorun', 'enable', enable)
 
 
 def approvals() -> bool:
@@ -57,10 +56,7 @@ def approvals() -> bool:
     Relevant uci configuration is: updater.autorun.approvals
     """
     with EUci() as uci:
-        try:
-            return uci.get_boolean("updater", "autorun", "approvals")
-        except UciExceptionNotFound:
-            return False  # No option means disabled
+        return uci.get("updater", "autorun", "approvals", dtype=bool, default=False)
 
 
 def set_approvals(enabled: bool):
@@ -69,7 +65,7 @@ def set_approvals(enabled: bool):
     """
     with EUci() as uci:
         uci.set('updater', 'autorun', 'autorun')
-        uci.set_boolean('updater', 'autorun', 'approvals', enabled)
+        uci.set('updater', 'autorun', 'approvals', enabled)
 
 
 def auto_approve_time() -> typing.Optional[int]:
@@ -78,11 +74,8 @@ def auto_approve_time() -> typing.Optional[int]:
     This is releavant to uci config: updater.autorun.auto_approve_time
     """
     with EUci() as uci:
-        try:
-            value = uci.get_integer("updater", "autorun", "auto_approve_time")
-            return value if value > 0 else None
-        except UciExceptionNotFound:
-            return 0
+        value = uci.get("updater", "autorun", "auto_approve_time", dtype=int, default=0)
+        return value if value > 0 else None
 
 
 def set_auto_approve_time(approve_time: typing.Optional[int]):
@@ -93,6 +86,6 @@ def set_auto_approve_time(approve_time: typing.Optional[int]):
     with EUci() as uci:
         if approve_time and approve_time > 0:
             uci.set('updater', 'autorun', 'autorun')
-            uci.set_integer('updater', 'autorun', 'auto_approve_time', approve_time)
+            uci.set('updater', 'autorun', 'auto_approve_time', approve_time)
         else:
             uci.delete('updater', 'autorun', 'auto_approve_time')
