@@ -25,12 +25,23 @@
 import os
 import json
 import gettext
-from uci import Uci, UciExceptionNotFound
+import typing
+from euci import EUci, UciExceptionNotFound
 from .const import PKGLISTS_FILE
-from .exceptions import ExceptionUpdaterNoSuchList
+from .exceptions import UpdaterNoSuchListError, UpdaterNoSuchListOptionError
+
+__PKGLIST_ENTRIES = typing.Dict[str, typing.Union[str, bool]]
 
 
-def pkglists(lang=None):
+def _load_lists():
+    if os.path.isfile(PKGLISTS_FILE):  # Just to be sure
+        with open(PKGLISTS_FILE, 'r') as file:
+            return json.load(file)
+    else:
+        return {}
+
+
+def pkglists(lang=None) -> typing.Dict[str, __PKGLIST_ENTRIES]:
     """Returns dict of pkglists.
     Argument lang is expected to be a string containing language code. This
     code is then used for gettext translations of titles and descriptions of
@@ -42,60 +53,57 @@ def pkglists(lang=None):
     "hidden": This is boolean value specifying if pkglist is visible.
     "official": This is boolean value specifying if pkglist is supported.
     "title": This is title text describing pkglist (human readable name).
-    "message": This is human readable description of given pkglist.
+    "description": This is human readable description of given pkglist.
     "url": Optional URL to documentation. This can be None if not provided.
+    "options": Additional package options
     """
-    result = dict()
-
     trans = gettext.translation(
         'pkglists',
         languages=[lang] if lang is not None else None,
         fallback=True)
+    known_lists = _load_lists()
 
-    if os.path.isfile(PKGLISTS_FILE):  # Just to be sure
-        with open(PKGLISTS_FILE, 'r') as file:
-            ldul = json.load(file)
-            for name, lst in ldul.items():
-                result[name] = {
-                    "enabled": False,
+    result = {}
+    with EUci() as uci:
+        enabled_lists = uci.get('pkglists', 'pkglists', 'pkglist', list=True, default=[])
+        for name, lst in known_lists.items():
+            result[name] = {
+                "enabled": name in enabled_lists,
+                "title": trans.gettext(lst['title']),
+                "description": trans.gettext(lst['description']),
+                "official": lst.get('official', False),
+                "url": lst.get('url'),
+                "hidden": True,  # Obsolete option for backward compatibility
+                "options": {},
+            }
+            for opt_name, option in lst['options']:
+                result[name]['options'][opt_name] = {
+                    "enabled": uci.get('pkglists', name, opt_name,
+                                       dtype=bool, default=option.get('default', False)),
                     "title": trans.gettext(lst['title']),
-                    "message": trans.gettext(lst['description']),
-                    "hidden": not lst.get('visible', True),
-                    "official": lst.get('official', False),
-                    "url": lst.get('url'),
+                    "description": trans.gettext(lst['description']),
                 }
-
-    with Uci() as uci:
-        try:
-            lists = uci.get("updater", "turris", "pkglists")
-        except (UciExceptionNotFound, KeyError):
-            # If we fail to get that section then just ignore
-            return result
-    for lst in lists:
-        if lst in result:
-            result[lst]['enabled'] = True
-        # Ignore any unknown but enabled lists
-
     return result
 
 
-def update_pkglists(lists):
+def update_pkglists(lists: typing.Dict[str, typing.Dict[str, bool]]):
     """
-    List is expected to be a array of strings (list ids) that should be
-    enabled. Anything omitted will be disabled.
+    Lists is expected to be nested dictionary consisting of pklist names to be enabled
+    and sub-dictionary with their options.
+    Anything omitted will be disabled.
     """
-    expected = set()
-    if os.path.isfile(PKGLISTS_FILE):  # Just to be sure
-        with open(PKGLISTS_FILE, 'r') as file:
-            ldul = json.load(file)
-            for name in ldul:
-                expected.add(name)
-    for lst in lists:
-        if lst not in expected:
-            raise ExceptionUpdaterNoSuchList(
-                "Can't enable unknown package list:" + str(lst))
+    known_lists = _load_lists()
 
-    # Set
-    with Uci() as uci:
-        uci.set('updater', 'turris', 'turris')
-        uci.set('updater', 'turris', 'pkglists', tuple(lists))
+    for name, options in lists.items():
+        if name not in known_lists:
+            raise UpdaterNoSuchListError("Can't enable unknown package list: {}".format(name))
+        for opt in options:
+            if opt not in known_lists[name]['options']:
+                raise UpdaterNoSuchListOptionError("Can't enable unknown package list option: {}: {}".format(name, opt))
+    with EUci() as uci:
+        uci.set('pkglists', 'pkglists', 'pkglist', lists.keys())
+        for name, options in lists.items():
+            uci.delete('pkglists', name)
+            uci.set('pkglists', name, name)
+            for opt, value in options.items():
+                uci.set('pkglists', name, opt, value)
