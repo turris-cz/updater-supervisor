@@ -26,7 +26,7 @@ import os
 import time
 from . import const, autorun, notify
 from .utils import report
-from .exceptions import ExceptionUpdaterApproveInvalid
+from .exceptions import UpdaterApproveInvalidError
 
 # TODO do we want to have list of packages that are auto approved?
 # This would be beneficial for packages such as base-files that are updated
@@ -117,7 +117,7 @@ def _set_stat(status, hsh):
         cols.extend(file.readline().split(' '))
 
     if hsh is not None and cols[0].strip() != hsh:
-        raise ExceptionUpdaterApproveInvalid("Not matching hash passed")
+        raise UpdaterApproveInvalidError("Not matching hash passed")
 
     # Write new stat
     cols[1] = status
@@ -127,7 +127,7 @@ def _set_stat(status, hsh):
 
 def approve(hsh):
     """Approve current plan. Passed hash should match with hash returned from
-    current(). If it doesn't match then ExceptionUpdaterApproveInvalid is
+    current(). If it doesn't match then UpdaterApproveInvalidError is
     thrown. You can pass None to skip this check.
     """
     _set_stat('granted', hsh)
@@ -136,7 +136,7 @@ def approve(hsh):
 def deny(hsh):
     """Deny current plan. This makes it effectively never timeout
     (automatically installed). Passed hash should be same as the one returned
-    from current(). If it doesn't match then ExceptionUpdaterApproveInvalid is
+    from current(). If it doesn't match then UpdaterApproveInvalidError is
     thrown. You can pass None to skip this check.
     """
     _set_stat('denied', hsh)

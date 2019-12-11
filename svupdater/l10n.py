@@ -25,7 +25,7 @@
 import os
 from uci import Uci, UciExceptionNotFound
 from .const import L10N_FILE
-from .exceptions import ExceptionUpdaterNoSuchLang
+from .exceptions import UpdaterNoSuchLangError
 
 
 def languages():
@@ -67,7 +67,7 @@ def update_languages(langs):
                 expected.add(line.strip())
     for lang in langs:
         if lang not in expected:
-            raise ExceptionUpdaterNoSuchLang(
+            raise UpdaterNoSuchLangError(
                 "Can't enable unsupported language code:" + str(lang))
 
     # Set

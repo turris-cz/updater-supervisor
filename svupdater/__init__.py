@@ -26,7 +26,7 @@ from . import autorun, const
 from .utils import check_exclusive_lock as _check_exclusive_lock
 from .utils import daemonize as _daemonize
 from ._pidlock import pid_locked as _pid_locked
-from .exceptions import ExceptionUpdaterDisabled
+from .exceptions import UpdaterDisabledError
 from ._supervisor import run as _run
 from .prerun import wait_for_network as _wait_for_network
 
@@ -59,7 +59,7 @@ def run(wait_for_network=False, ensure_run=False, timeout=const.PKGUPDATE_TIMEOU
     You can pass hooks (single line shell scripts) to be run after updater.
     """
     if not autorun.enabled():
-        raise ExceptionUpdaterDisabled(
+        raise UpdaterDisabledError(
             "Can't run. Updater is configured to be disabled.")
     # Fork to daemon
     if _daemonize():

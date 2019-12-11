@@ -31,7 +31,7 @@ from threading import Thread
 from .utils import report
 from ._pidlock import pid_locked
 from .const import POSTRUN_HOOK_FILE
-from .exceptions import ExceptionUpdaterInvalidHookCommand
+from .exceptions import UpdaterInvalidHookCommandError
 
 
 def __run_command(command):
@@ -67,7 +67,7 @@ def register(command):
     "commands" has to be single line shell script.
     """
     if '\n' in command:
-        raise ExceptionUpdaterInvalidHookCommand(
+        raise UpdaterInvalidHookCommandError(
             "Argument register can be only single line string.")
     # Open file for writing and take exclusive lock
     file = os.open(POSTRUN_HOOK_FILE, os.O_WRONLY | os.O_CREAT | os.O_APPEND)

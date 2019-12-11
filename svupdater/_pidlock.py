@@ -34,7 +34,7 @@ import errno
 import signal
 from .const import PID_FILE_PATH
 from .utils import report, check_exclusive_lock
-from .exceptions import ExceptionUpdaterPidLockFailure
+from .exceptions import UpdaterPidLockFailureError
 
 
 def pid_locked():
@@ -181,7 +181,7 @@ class PidLock():
         """Free pid lock if we have it at the moment
         """
         if self.file is None:
-            raise ExceptionUpdaterPidLockFailure(
+            raise UpdaterPidLockFailureError(
                 "Can't free not taken pidlock")
         file = self.file
         self.file = None
@@ -195,7 +195,7 @@ class PidLock():
         """Block read access to pid lock.
         """
         if self.file is None:
-            raise ExceptionUpdaterPidLockFailure(
+            raise UpdaterPidLockFailureError(
                 "Can't block not taken pidlock")
         # TODO timeout
         fcntl.flock(self.file, fcntl.LOCK_EX)
@@ -205,7 +205,7 @@ class PidLock():
         lock is acquired it is blocking read access.
         """
         if self.file is None:
-            raise ExceptionUpdaterPidLockFailure(
+            raise UpdaterPidLockFailureError(
                 "Can't block not taken pidlock")
         # TODO timeout
         fcntl.flock(self.file, fcntl.LOCK_SH)
