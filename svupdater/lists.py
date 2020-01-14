@@ -30,7 +30,11 @@ from euci import EUci, UciExceptionNotFound
 from .const import PKGLISTS_FILE
 from .exceptions import UpdaterNoSuchListError, UpdaterNoSuchListOptionError
 
-__PKGLIST_ENTRIES = typing.Dict[str, typing.Union[str, bool]]
+__PKGLIST_ENTRIES = typing.Dict[
+    str, typing.Union[
+        str, bool, typing.Dict[str, typing.Union[str, bool]]
+    ]
+]
 
 
 def _load_lists():
@@ -76,12 +80,12 @@ def pkglists(lang=None) -> typing.Dict[str, __PKGLIST_ENTRIES]:
                 "hidden": True,  # Obsolete option for backward compatibility
                 "options": {},
             }
-            for opt_name, option in lst['options']:
+            for opt_name, option in lst.get('options', {}).items():
                 result[name]['options'][opt_name] = {
                     "enabled": uci.get('pkglists', name, opt_name,
                                        dtype=bool, default=option.get('default', False)),
-                    "title": trans.gettext(lst['title']),
-                    "description": trans.gettext(lst['description']),
+                    "title": trans.gettext(option['title']),
+                    "description": trans.gettext(option['description']),
                 }
     return result
 
