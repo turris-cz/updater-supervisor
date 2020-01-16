@@ -77,7 +77,7 @@ def pkglists(lang=None) -> typing.Dict[str, __PKGLIST_ENTRIES]:
                 "description": trans.gettext(lst['description']),
                 "official": lst.get('official', False),
                 "url": lst.get('url'),
-                "hidden": True,  # Obsolete option for backward compatibility
+                "hidden": False,  # Obsolete option for backward compatibility
                 "options": {},
             }
             for opt_name, option in lst.get('options', {}).items():
