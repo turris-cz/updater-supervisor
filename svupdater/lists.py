@@ -105,7 +105,7 @@ def update_pkglists(lists: typing.Dict[str, typing.Dict[str, bool]]):
             if opt not in known_lists[name]['options']:
                 raise UpdaterNoSuchListOptionError("Can't enable unknown package list option: {}: {}".format(name, opt))
     with EUci() as uci:
-        uci.set('pkglists', 'pkglists', 'pkglist', lists.keys())
+        uci.set('pkglists', 'pkglists', 'pkglist', list(lists.keys()))
         for name, options in lists.items():
             uci.delete('pkglists', name)
             uci.set('pkglists', name, name)
