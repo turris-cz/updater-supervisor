@@ -46,6 +46,8 @@ NOTIFY_MESSAGE_EN = "Your approval is required to apply pending updates." + \
 L10N_FILE = "/usr/share/updater/l10n_supported"
 # File containing list of known pkglists in json
 PKGLISTS_FILE = "/usr/share/updater/pkglists.json"
+# File containing list of known pkglists's labels in json
+PKGLISTS_LABELS_FILE = "/usr/share/updater/pkglists-labels.json"
 
 # Hooks file containing commands to be run after updater execution finished.
 POSTRUN_HOOK_FILE = "/var/run/updater-postrun-hook"
