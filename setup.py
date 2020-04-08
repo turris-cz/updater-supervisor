@@ -39,5 +39,8 @@ setup(
         'console_scripts': [
             'updater-supervisor=svupdater.__main__:main'
         ]
-    }
+    },
+    install_requires=[
+        "pyuci @ git+https://gitlab.labs.nic.cz/turris/pyuci.git",
+    ],
 )
