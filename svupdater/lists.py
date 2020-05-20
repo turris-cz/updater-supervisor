@@ -29,6 +29,7 @@ import typing
 from euci import EUci
 from .const import PKGLISTS_FILE, PKGLISTS_LABELS_FILE
 from .exceptions import UpdaterNoSuchListError, UpdaterNoSuchListOptionError
+from . import _board
 
 __PKGLIST_ENTRIES_LABELS = typing.Dict[str, str]
 __PKGLIST_ENTRIES_OPTIONS = typing.Dict[str, typing.Union[str, bool, __PKGLIST_ENTRIES_LABELS]]
@@ -69,6 +70,7 @@ def __options(pkglist_name, trans, uci, known_labels, options):
             "url": option.get('url'),
             "labels": __labels(known_labels, trans, option.get('labels', {})),
         } for name, option in options.items()
+        if _board.board() in option.get('boards', _board.BOARDS)
     }
 
 
@@ -122,6 +124,7 @@ def pkglists(lang=None) -> typing.Dict[str, __PKGLIST_ENTRIES]:
                 "options": __options(name, trans, uci, known_labels, lst.get('options', {})),
                 "labels": __labels(known_labels, trans, lst.get('labels', {})),
             } for name, lst in known_lists.items()
+            if _board.board() in lst.get('boards', _board.BOARDS)
         }
 
 
