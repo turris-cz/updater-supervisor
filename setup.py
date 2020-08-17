@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2018-2019, CZ.NIC, z.s.p.o. (http://www.nic.cz/)
+# Copyright (c) 2018-2020, CZ.NIC, z.s.p.o. (http://www.nic.cz/)
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@ from setuptools import setup
 
 setup(
     name='svupdater',
-    version='1.3.1',
+    version='1.3.2',
     description="Supervising application and library for updater-ng.",
     url="https://gitlab.labs.nic.cz/turris/updater/supervisor",
     author="CZ.NIC, z. s. p. o.",
