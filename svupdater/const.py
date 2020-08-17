@@ -18,9 +18,7 @@ PKGUPDATE_ERROR_LOG = PKGUPDATE_STATE + "/last_error"
 PKGUPDATE_CRASH_LOG = "/tmp/updater_crash.log"
 
 # Updater run command
-# TODO get rid of state log
-PKGUPDATE_CMD = ['pkgupdate', '--batch', '--state-log',
-                 '--task-log=/usr/share/updater/updater-log']
+PKGUPDATE_CMD = ['pkgupdate', '--batch', '--state-log']
 # pkgupdate default timeout
 PKGUPDATE_TIMEOUT = 3000
 # pkgupdate default kill timeout
