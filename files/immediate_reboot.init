@@ -5,6 +5,7 @@
 # as soon as possible.
 
 START=85
+STOP=00
 
 status() {
 	return 0
@@ -22,7 +23,20 @@ start() {
 }
 
 stop() {
-	:
+	# Block shutdown when update is running
+	# We have to use Python3 as there seems to be no shell tool to simply use
+	# POSIX file locks (lockf instead of flock)
+	python3 - <<-EOF
+		import fcntl
+		f = open("/var/lock/opkg.lock", 'w')
+		try:
+		    fcntl.lockf(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+		except BlockingIOError:
+		    print("Waiting for opkg or updater to terminate...")
+		    fcntl.lockf(f, fcntl.LOCK_EX)
+		    print("Temination of updater/opkg detected, unblocking shutdown.")
+		f.close()
+	EOF
 }
 
 restart() {
