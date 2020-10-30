@@ -20,21 +20,24 @@ def random_sleep(max_seconds):
         report("Suspending updater start for " + str(suspend) + " seconds")
     time.sleep(suspend)
 
+def ping(address=PING_ADDRESS, count=1, deadline=1):
+    """Ping address with given amount of pings and deadline.
+    Returns True on success and False if ping fails.
+    """
+    with open(os.devnull, 'w') as devnull:
+        return subprocess.call(
+            ['ping', '-c', str(count), '-w', str(deadline), address],
+            stdin=devnull,
+            stdout=devnull,
+            stderr=devnull
+            )
 
 def wait_for_network(max_stall):
     """This tries to connect to repo.turris.cz to check if we can access it and
     otherwise it stalls execution for given maximum number of seconds.
+
+    Returns True if connection is successful and False otherwise.
     """
-    def ping():
-        """Just run one second timeout single ping to check if we have
-        connection """
-        with open(os.devnull, 'w') as devnull:
-            return subprocess.call(
-                ['ping', '-c', '1', '-w', '1', PING_ADDRESS],
-                stdin=devnull,
-                stdout=devnull,
-                stderr=devnull
-                )
 
     def network_test():
         "Run network test (expected to be run as subprocess)"
@@ -50,3 +53,5 @@ def wait_for_network(max_stall):
     process.join(max_stall)
     if process.is_alive():
         process.terminate()
+        return False
+    return True

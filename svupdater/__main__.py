@@ -5,7 +5,7 @@ from svupdater.prerun import random_sleep, wait_for_network
 from svupdater._supervisor import run
 from svupdater.const import PKGUPDATE_TIMEOUT, PKGUPDATE_TIMEOUT_KILL
 from svupdater.const import PING_TIMEOUT
-from svupdater.utils import daemonize
+from svupdater.utils import daemonize, report
 
 HELP_DESCRIPTION = """
     Updater-ng supervisor used for system updating.
@@ -21,39 +21,38 @@ def parse_arguments():
                      """)
     prs.add_argument('--rand-sleep', const=7200, nargs='?', type=int,
                      help="""
-                     Sleep random amount of the time with maximum of given
-                     number of seconds. In default two hours are used.
+                     Sleep random amount of the time with maximum of given number of seconds. In default two hours are
+                     used.
                      """)
     prs.add_argument('--wait-for-network', const=PING_TIMEOUT, type=int,
                      nargs='?', help="""
-                     Check if Turris repository is accessible (even before
-                     going to background). You can specify timeout in seconds
-                     as an argument. 10 seconds is used if no argument is
-                     specified.
+                     Check if Turris repository is accessible (even before going to background). You can specify timeout
+                     in seconds as an argument. 10 seconds is used if no argument is specified. Specify zero to disable
+                     network check.
+                     """)
+    prs.add_argument('--no-network-fail', action='store_true',
+                     help="""
+                     Do not run pkgupdate when network connection is not detected.
                      """)
     prs.add_argument('--ensure-run', action='store_true',
                      help="""
-                     Make sure that updater runs at least once after current
-                     time. This can be used to ensure that latest changes are
-                     applied as soon as possible even if another instance of
-                     updater is already running.
+                     Make sure that updater runs at least once after current time. This can be used to ensure that
+                     latest changes are applied as soon as possible even if another instance of updater is already
+                     running.
                      """)
     prs.add_argument('--quiet', '-q', action='store_true',
                      help="""
-                     Don't print pkgupdate's output to console. But still print
-                     supervisor output.
+                     Don't print pkgupdate's output to console. But still print supervisor output.
                      """)
     prs.add_argument('--timeout', default=PKGUPDATE_TIMEOUT,
                      help="""
-                     Set time limit in seconds for updater execution. pkgupdate
-                     is gracefully exited when this timeout runs out. This is
-                     protection for pkgupdate stall. In defaut one hour is set
-                     as timeout.
+                     Set time limit in seconds for updater execution. pkgupdate is gracefully exited when this timeout
+                     runs out. This is protection for pkgupdate stall. In defaut one hour is set as timeout.
                      """)
     prs.add_argument('--timeout-kill', default=PKGUPDATE_TIMEOUT_KILL,
                      help="""
-                     Set time in seconds after which pkgupdate is killed. This
-                     is time from timeout. In default one minute is used.
+                     Set time in seconds after which pkgupdate is killed. This is time from timeout. In default one
+                     minute is used.
                      """)
     return prs.parse_args()
 
@@ -69,8 +68,11 @@ def main():
     if args.daemon and daemonize():
         return
 
-    random_sleep(args.rand_sleep)
-    wait_for_network(args.wait_for_network)
+    if args.rand_sleep > 0:
+        random_sleep(args.rand_sleep)
+        if not wait_for_network(args.wait_for_network) and not args.no_network_fail:
+            report("There seems to be no network connection to Turris servers. Please try again later.")
+            sys.exit(1)
 
     sys.exit(run(
         ensure_run=args.ensure_run,
