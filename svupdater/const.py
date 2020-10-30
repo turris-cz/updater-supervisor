@@ -1,4 +1,3 @@
-# coding=utf-8
 """This just holds some constants used in updater-supervisor
 """
 
