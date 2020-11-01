@@ -48,3 +48,6 @@ PKGLISTS_LABELS_FILE = "/usr/share/updater/pkglists-labels.json"
 
 # Hooks file containing commands to be run after updater execution finished.
 POSTRUN_HOOK_FILE = "/var/run/updater-postrun-hook"
+
+SYSLOG_MESSAGES = "/var/log/messages"
+SYSLOG_MESSAGES_1 = "/var/log/messages.1"

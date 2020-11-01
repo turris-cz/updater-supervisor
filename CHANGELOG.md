@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- `msgtrace` module with ability to provide info such as date of last check for
+  updates or updater execution messages.
 - Option `--no-network-fail` to skip updater run when network connection is
   unavailable
 - Possibility to disable network test by setting zero
