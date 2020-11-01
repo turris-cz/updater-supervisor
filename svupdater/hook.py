@@ -3,6 +3,7 @@ import sys
 import fcntl
 import errno
 import subprocess
+import typing
 from threading import Thread
 from .utils import report
 from ._pidlock import pid_locked
@@ -33,7 +34,7 @@ def __run_command(command):
         report('Command failed with exit code: ' + str(exit_code))
 
 
-def register(command):
+def register(command: str):
     """Add given command (format is expected to be same as if you call
     subprocess.run) to be executed when updater exits. Note that this hook is
     executed no matter if updater passed or failed or even if it just requested
@@ -74,7 +75,7 @@ def register(command):
     report('Postrun hook registered: ' + command)
 
 
-def register_list(commands):
+def register_list(commands: typing.Iterable[str]):
     """Same as register but it allows multiple commands to be registered at
     once.
     """

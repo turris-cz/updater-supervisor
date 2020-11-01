@@ -7,13 +7,31 @@ from .const import PKGLISTS_FILE, PKGLISTS_LABELS_FILE
 from .exceptions import UpdaterNoSuchListError, UpdaterNoSuchListOptionError
 from . import _board
 
-__PKGLIST_ENTRIES_LABELS = typing.Dict[str, str]
-__PKGLIST_ENTRIES_OPTIONS = typing.Dict[str, typing.Union[str, bool, __PKGLIST_ENTRIES_LABELS]]
-__PKGLIST_ENTRIES = typing.Dict[
-    str, typing.Union[
-        str, bool, __PKGLIST_ENTRIES_OPTIONS, __PKGLIST_ENTRIES_LABELS
-    ]
-]
+PkgListLabel = typing.Dict[str, str]
+PkgListOption = typing.Dict[str, typing.Union[bool, str, None, PkgListLabel]]
+PkgListEntry = typing.Dict[str, typing.Union[bool, str, None, PkgListOption, PkgListLabel]]
+# We can't use TypedDict as it is available since Python 3.8 but we are still using Python 3.7. TypedDict implementation
+# is kept here for future replacement.
+#
+#class PkgListLabel(typing.TypeDict):
+#    title: str
+#    desription: str
+#    severity: str
+#
+#class PkgListOption(typing.TypeDict):
+#    enabled: bool
+#    title: str
+#    description: str
+#    url: typing.Optional[str]
+#    labels: typing.Dict[str, PkgListLabel]
+#
+#class PkgListEntry(typing.TypeDict):
+#    enabled: bool
+#    title: str
+#    description: str
+#    url: typing.Optional[str]
+#    options: typing.Dict[str, PkgListOption]
+#    labels: typing.Dict[str, PkgListLabel]
 
 
 def _load_json_dict(file_path):
@@ -50,7 +68,7 @@ def __options(pkglist_name, trans, uci, known_labels, options):
     }
 
 
-def pkglists(lang=None) -> typing.Dict[str, __PKGLIST_ENTRIES]:
+def pkglists(lang=None) -> typing.Dict[str, PkgListEntry]:
     """Returns dict of pkglists.
     Argument lang is expected to be a string containing language code. This code is then used for gettext translations
     of titles and descriptions of messages.
@@ -106,8 +124,8 @@ def pkglists(lang=None) -> typing.Dict[str, __PKGLIST_ENTRIES]:
 
 def update_pkglists(lists: typing.Dict[str, typing.Dict[str, bool]]):
     """
-    Lists is expected to be nested dictionary consisting of pklist names to be enabled
-    and sub-dictionary with their options.
+    Lists is expected to be nested dictionary consisting of pklist names to be enabled and sub-dictionary with their
+    options.
     Anything omitted will be disabled.
     """
     known_lists = _load_json_dict(PKGLISTS_FILE)

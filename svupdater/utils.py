@@ -10,9 +10,10 @@ import resource
 import signal
 import traceback
 import syslog
+import typing
 
 
-def report(msg):
+def report(msg: str):
     """Report message to syslog and to terminal.
     """
     if sys.stderr.isatty():
@@ -22,7 +23,7 @@ def report(msg):
     syslog.syslog(msg)
 
 
-def setup_alarm(func, timeout):
+def setup_alarm(func: typing.Callable, timeout: int):
     "This is simple alarm setup function with possibility of None timeout"
     if timeout is None:
         return
@@ -30,7 +31,7 @@ def setup_alarm(func, timeout):
     signal.alarm(timeout)
 
 
-def check_exclusive_lock(path, isflock=False):
+def check_exclusive_lock(path: str, isflock: bool = False) -> bool:
     """This returns True if someone holds exclusive lock on given path.
     Otherwise it returns False.
     """
@@ -57,7 +58,7 @@ def check_exclusive_lock(path, isflock=False):
     return False
 
 
-def daemonize():
+def daemonize() -> bool:
     """Fork to daemon. It returns True for parent process and False for child
     process.
 

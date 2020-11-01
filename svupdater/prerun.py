@@ -11,7 +11,7 @@ from .const import PING_ADDRESS
 from .utils import report
 
 
-def random_sleep(max_seconds):
+def random_sleep(max_seconds: int):
     "Sleep random amount of seconds with maximum of max_seconds"
     if max_seconds is None or max_seconds <= 0:
         return  # No sleep at all
@@ -20,7 +20,7 @@ def random_sleep(max_seconds):
         report("Suspending updater start for " + str(suspend) + " seconds")
     time.sleep(suspend)
 
-def ping(address=PING_ADDRESS, count=1, deadline=1):
+def ping(address: str = PING_ADDRESS, count: int = 1, deadline: int = 1) -> bool:
     """Ping address with given amount of pings and deadline.
     Returns True on success and False if ping fails.
     """
@@ -30,9 +30,9 @@ def ping(address=PING_ADDRESS, count=1, deadline=1):
             stdin=devnull,
             stdout=devnull,
             stderr=devnull
-            )
+        ) == 0
 
-def wait_for_network(max_stall):
+def wait_for_network(max_stall: int) -> bool:
     """This tries to connect to repo.turris.cz to check if we can access it and
     otherwise it stalls execution for given maximum number of seconds.
 
@@ -41,9 +41,9 @@ def wait_for_network(max_stall):
 
     def network_test():
         "Run network test (expected to be run as subprocess)"
-        if ping():
-            report("Waiting for network connection")
-            while ping():
+        if not ping():
+            utils.report("Waiting for network connection")
+            while not ping():
                 pass
 
     if max_stall is None:

@@ -1,15 +1,31 @@
 import os
 import time
+import typing
 from . import const, autorun, notify
 from .utils import report
 from .exceptions import UpdaterApproveInvalidError
 
-# TODO do we want to have list of packages that are auto approved?
-# This would be beneficial for packages such as base-files that are updated
-# very often but do not change at all.
+
+PlannedPackage = typing.Dict[str, str]
+ApprovalRequest = typing.Dict[str, typing.Union[str, int, typing.List[PlannedPackage], bool]]
+# We can't use TypedDict as it is available since Python 3.8 but we are still using Python 3.7. TypedDict implementation
+# is kept here for future replacement.
+#
+#class PlannedPackage(typing.TypedDict):
+#    name: str
+#    op: str
+#    cur_ver: str
+#    new_ver: str
+#
+#class ApprovalRequest(typing.TypedDict):
+#    hash: str
+#    status: str
+#    time: int
+#    plan: typing.List[PlannedPackage]
+#    reboot: bool
 
 
-def current():
+def current() -> ApprovalRequest:
     """Returns currently existing aprroval request. If there is no approval
     request pending then it returns None.
 
@@ -101,7 +117,7 @@ def _set_stat(status, hsh):
         file.write(' '.join(cols))
 
 
-def approve(hsh):
+def approve(hsh: str):
     """Approve current plan. Passed hash should match with hash returned from
     current(). If it doesn't match then UpdaterApproveInvalidError is
     thrown. You can pass None to skip this check.
@@ -109,7 +125,7 @@ def approve(hsh):
     _set_stat('granted', hsh)
 
 
-def deny(hsh):
+def deny(hsh: str):
     """Deny current plan. This makes it effectively never timeout
     (automatically installed). Passed hash should be same as the one returned
     from current(). If it doesn't match then UpdaterApproveInvalidError is

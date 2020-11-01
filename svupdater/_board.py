@@ -17,7 +17,7 @@ BOARD_MAP = {
 __board = None
 
 
-def board():
+def board() -> str:
     """Returns board name as expected by updater components of current board host.
     """
     global __board

@@ -19,7 +19,7 @@ def clear_logs():
         os.remove(PKGUPDATE_CRASH_LOG)
 
 
-def failure(exit_code, trace):
+def failure(exit_code: int, trace: str):
     """Send notification about updater's failure
     """
     if exit_code == 0 and not os.path.isfile(PKGUPDATE_ERROR_LOG):
@@ -103,8 +103,7 @@ def approval():
 
 
 def notifier():
-    """This just calls notifier. It processes new notification and sends them
-    together.
+    """This just calls notifier. It processes new notification and sends them together.
     """
     if subprocess.call(['notifier']) != 0:
         report('Notifier failed')
