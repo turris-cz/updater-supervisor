@@ -19,6 +19,11 @@ def parse_arguments():
                      help="""
                      Run supervisor in background (detach from terminal).
                      """)
+    prs.add_argument('--autorun', '-a', action='store_true',
+                     help="""
+                     Use this option when this is automatic execution. It prevents run of updater when autorun is not
+                     enabled.
+                     """)
     prs.add_argument('--rand-sleep', const=7200, nargs='?', type=int,
                      help="""
                      Sleep random amount of the time with maximum of given number of seconds. In default two hours are
@@ -59,11 +64,11 @@ def parse_arguments():
 
 def main():
     "Main function for updater-supervisor run as executable"
-    if not autorun.enabled():
+    args = parse_arguments()
+
+    if args.autorun and not autorun.enabled():
         print('Updater autorun disabled.')
         sys.exit(0)
-
-    args = parse_arguments()
 
     if args.daemon and daemonize():
         return

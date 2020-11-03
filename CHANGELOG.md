@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   unavailable
 - Possibility to disable network test by setting zero
 - System shutdown is now retained till there is process holding opkg lock
+- argument `--autorun` to mark execution as automatic run to adhere autorun
+  configuration
+
+### Changed
+- Disabled autorun now won't prevent from update, you have to use `--autorun` to
+  get previous behavior
 
 ## [1.3.2] - 2020-08-17
 ### Changed
