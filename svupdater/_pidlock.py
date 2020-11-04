@@ -1,8 +1,8 @@
 """This implements updater-supervisor pid file lock.
-This ensures that only one instance of updater-supervisor is running and that
-any other just spawned instance can send signal to this instance.
-Signals are used in updater-supervisor for simple comunication between instance
-holding lock and any other spawned instance.
+This ensures that only one instance of updater-supervisor is running and that any other just spawned instance can send
+signal to this instance.
+Signals are used in updater-supervisor for simple comunication between instance holding lock and any other spawned
+instance.
 """
 import os
 import fcntl
@@ -67,6 +67,7 @@ class PidLock():
     Note that there should be only once PidLock object used in single process
     because it registers signal.
     """
+
     def __init__(self):
         self.file = None
         self._sigusr_rec = False

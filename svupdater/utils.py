@@ -1,7 +1,6 @@
 """Various utility functions used in more than one other updater-supervisor
 module.
 """
-from __future__ import print_function
 import os
 import sys
 import fcntl

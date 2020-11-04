@@ -3,9 +3,9 @@ from . import autorun, const
 from .utils import check_exclusive_lock as _check_exclusive_lock
 from .utils import daemonize as _daemonize
 from ._pidlock import pid_locked as _pid_locked
-from .exceptions import UpdaterDisabledError
 from ._supervisor import run as _run
 from .prerun import wait_for_network as _wait_for_network
+from .exceptions import UpdaterDisabledError
 
 
 def opkg_lock() -> bool:

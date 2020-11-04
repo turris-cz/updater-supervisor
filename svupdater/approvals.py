@@ -1,8 +1,9 @@
+"""Access and control functions of update approvals.
+"""
 import os
 import time
 import typing
-from . import const, autorun, notify
-from .utils import report
+from . import const, autorun, notify, utils
 from .exceptions import UpdaterApproveInvalidError
 
 
@@ -153,7 +154,7 @@ def _approved():
 
 def _gen_new_stat(new_hash):
     "Generate new stat file and send notification."
-    report('Generating new approval request')
+    utils.report('Generating new approval request')
     # Write to stat file
     with open(const.APPROVALS_STAT_FILE, 'w') as file:
         file.write(' '.join((new_hash, 'asked', str(int(time.time())))))

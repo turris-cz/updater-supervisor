@@ -1,11 +1,12 @@
+"""Package lists control functions.
+"""
 import os
 import json
 import gettext
 import typing
-from euci import EUci
-from .const import PKGLISTS_FILE, PKGLISTS_LABELS_FILE
+import euci
+from . import const, _board
 from .exceptions import UpdaterNoSuchListError, UpdaterNoSuchListOptionError
-from . import _board
 
 PkgListLabel = typing.Dict[str, str]
 PkgListOption = typing.Dict[str, typing.Union[bool, str, None, PkgListLabel]]
@@ -104,10 +105,10 @@ def pkglists(lang=None) -> typing.Dict[str, PkgListEntry]:
         'pkglists',
         languages=[lang] if lang is not None else None,
         fallback=True)
-    known_lists = _load_json_dict(PKGLISTS_FILE)
-    known_labels = _load_json_dict(PKGLISTS_LABELS_FILE)
+    known_lists = _load_json_dict(const.PKGLISTS_FILE)
+    known_labels = _load_json_dict(const.PKGLISTS_LABELS_FILE)
 
-    with EUci() as uci:
+    with euci.EUci() as uci:
         enabled_lists = uci.get('pkglists', 'pkglists', 'pkglist', list=True, default=[])
         return {
             name: {
@@ -128,7 +129,7 @@ def update_pkglists(lists: typing.Dict[str, typing.Dict[str, bool]]):
     options.
     Anything omitted will be disabled.
     """
-    known_lists = _load_json_dict(PKGLISTS_FILE)
+    known_lists = _load_json_dict(const.PKGLISTS_FILE)
 
     for name, options in lists.items():
         if name not in known_lists:
@@ -136,7 +137,7 @@ def update_pkglists(lists: typing.Dict[str, typing.Dict[str, bool]]):
         for opt in options:
             if opt not in known_lists[name]['options']:
                 raise UpdaterNoSuchListOptionError("Can't enable unknown package list option: {}: {}".format(name, opt))
-    with EUci() as uci:
+    with euci.EUci() as uci:
         uci.set('pkglists', 'pkglists', 'pkglist', list(lists.keys()))
         for name, options in lists.items():
             uci.delete('pkglists', name)

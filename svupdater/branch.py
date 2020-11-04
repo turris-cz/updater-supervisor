@@ -1,10 +1,12 @@
+"""This module provides easy way to access mode and target of updates. That is version branch updater follow.
+"""
 import typing
-from euci import EUci
+import euci
 
 
 def get_os_branch_or_version() -> typing.Tuple[str, str]:
     """Get OS branch or version from uci."""
-    with EUci() as uci:
+    with euci.EUci() as uci:
         mode = uci.get("updater", "turris", "mode", dtype=str, default="branch")
         value = uci.get("updater", "turris", mode, dtype=str, default="")
 

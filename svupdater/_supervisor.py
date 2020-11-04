@@ -1,7 +1,5 @@
-"""This module is core of udpdater-supervisor. It runs and supervise updater
-execution.
+"""This module is core of udpdater-supervisor. It runs and supervise updater execution.
 """
-from __future__ import print_function
 import os
 import sys
 import subprocess
@@ -9,17 +7,15 @@ import atexit
 import signal
 import errno
 from threading import Thread, Lock
-from . import autorun
-from . import approvals
-from . import notify
-from . import hook
+from . import autorun, approvals, notify, hook
 from .utils import setup_alarm, report
 from .const import PKGUPDATE_CMD, APPROVALS_ASK_FILE, PKGUPDATE_STATE
 from ._pidlock import PidLock
 
 
 class Supervisor:
-    "pkgupdate supervisor"
+    "Supervisor itself."
+
     def __init__(self, verbose):
         self.verbose = verbose
         self.kill_timeout = 0

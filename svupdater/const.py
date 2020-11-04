@@ -33,11 +33,10 @@ PING_TIMEOUT = 10
 APPROVALS_ASK_FILE = "/usr/share/updater/need_approval"
 APPROVALS_STAT_FILE = "/usr/share/updater/approvals"
 # Approvals notification message
-NOTIFY_MESSAGE_CS = u"Updater žádá o autorizaci akcí. Autorizaci můžete" + \
-        u" přidělit v administračním rozhraní Foris v záložce 'Updater'."
-NOTIFY_MESSAGE_EN = "Your approval is required to apply pending updates." + \
-        "You can grant it in the Foris administrative interface in the" + \
-        " 'Updater' menu."
+NOTIFY_MESSAGE_CS = "Updater žádá o autorizaci akcí. Autorizaci můžete přidělit v administračním rozhraní Foris " + \
+    "v záložce 'Updater'."
+NOTIFY_MESSAGE_EN = "Your approval is required to apply pending updates. You can grant it in the Foris " + \
+    "administrative interface in the 'Updater' menu."
 
 # File containing l10n symbols as a list of supported ones
 L10N_FILE = "/usr/share/updater/l10n_supported"

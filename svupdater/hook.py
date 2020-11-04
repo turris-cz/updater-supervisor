@@ -1,13 +1,14 @@
+"""Support for hook commands executed at the end of updater execution. It is in general a way to get notification about
+updater execution termination even if we are not the master of that process.
+"""
 import os
 import sys
 import fcntl
 import errno
 import subprocess
 import typing
-from threading import Thread
-from .utils import report
-from ._pidlock import pid_locked
-from .const import POSTRUN_HOOK_FILE
+import threading
+from . import utils, const, _pidlock
 from .exceptions import UpdaterInvalidHookCommandError
 
 
@@ -17,21 +18,21 @@ def __run_command(command):
             line = file.readline()
             if not line:
                 break
-            report(line.decode(sys.getdefaultencoding()))
+            utils.report(line.decode(sys.getdefaultencoding()))
 
-    report('Running command: ' + command)
+    utils.report('Running command: ' + command)
     process = subprocess.Popen(command, stderr=subprocess.PIPE,
                                stdout=subprocess.PIPE,
                                shell=True)
-    tout = Thread(target=_fthread, args=(process.stdout,))
-    terr = Thread(target=_fthread, args=(process.stderr,))
+    tout = threading.Thread(target=_fthread, args=(process.stdout,))
+    terr = threading.Thread(target=_fthread, args=(process.stderr,))
     tout.daemon = True
     terr.daemon = True
     tout.start()
     terr.start()
     exit_code = process.wait()
     if exit_code != 0:
-        report('Command failed with exit code: ' + str(exit_code))
+        utils.report('Command failed with exit code: ' + str(exit_code))
 
 
 def register(command: str):
@@ -47,12 +48,12 @@ def register(command: str):
         raise UpdaterInvalidHookCommandError(
             "Argument register can be only single line string.")
     # Open file for writing and take exclusive lock
-    file = os.open(POSTRUN_HOOK_FILE, os.O_WRONLY | os.O_CREAT | os.O_APPEND)
+    file = os.open(const.POSTRUN_HOOK_FILE, os.O_WRONLY | os.O_CREAT | os.O_APPEND)
     fcntl.lockf(file, fcntl.LOCK_EX)
     # Check if we are working with existing file
     invalid = False
     try:
-        if os.fstat(file).st_ino != os.stat(POSTRUN_HOOK_FILE).st_ino:
+        if os.fstat(file).st_ino != os.stat(const.POSTRUN_HOOK_FILE).st_ino:
             invalid = True
     except OSError as excp:
         if excp.errno == errno.ENOENT:
@@ -62,7 +63,7 @@ def register(command: str):
         os.close(file)
         register(command)
         return
-    if not pid_locked():  # Check if updater is running
+    if not _pidlock.pid_locked():  # Check if updater is running
         os.close(file)
         # If there is no running instance then just run given command
         __run_command(command)
@@ -72,7 +73,7 @@ def register(command: str):
     # it seems that way)
     with os.fdopen(file, 'w') as fhook:
         fhook.write(command + '\n')
-    report('Postrun hook registered: ' + command)
+    utils.report('Postrun hook registered: ' + command)
 
 
 def register_list(commands: typing.Iterable[str]):
@@ -89,7 +90,7 @@ def _run():
     """
     # Open file for reading and take exclusive lock
     try:
-        file = os.open(POSTRUN_HOOK_FILE, os.O_RDWR)
+        file = os.open(const.POSTRUN_HOOK_FILE, os.O_RDWR)
     except OSError as excp:
         if excp.errno == errno.ENOENT:
             return  # No file means nothing to do
@@ -101,4 +102,4 @@ def _run():
     with os.fdopen(file, 'r') as fhook:
         for line in fhook.readlines():
             __run_command(line)
-        os.remove(POSTRUN_HOOK_FILE)
+        os.remove(const.POSTRUN_HOOK_FILE)

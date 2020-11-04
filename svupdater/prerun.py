@@ -3,24 +3,25 @@ updater-supervisor to be suspended for random amount of time or it allows it to
 wait for internet connection
 """
 import os
-import subprocess
 import time
-from random import randrange
-from multiprocessing import Process
-from .const import PING_ADDRESS
-from .utils import report
+import random
+import typing
+import subprocess
+import multiprocessing
+from . import const, utils
 
 
 def random_sleep(max_seconds: int):
     "Sleep random amount of seconds with maximum of max_seconds"
     if max_seconds is None or max_seconds <= 0:
         return  # No sleep at all
-    suspend = randrange(max_seconds)
+    suspend = random.randrange(max_seconds)
     if suspend > 0:  # Just nice to have no print if we wait for 0 seconds
-        report("Suspending updater start for " + str(suspend) + " seconds")
+        utils.report("Suspending updater start for " + str(suspend) + " seconds")
     time.sleep(suspend)
 
-def ping(address: str = PING_ADDRESS, count: int = 1, deadline: int = 1) -> bool:
+
+def ping(address: str = const.PING_ADDRESS, count: int = 1, deadline: int = 1) -> bool:
     """Ping address with given amount of pings and deadline.
     Returns True on success and False if ping fails.
     """
@@ -32,7 +33,8 @@ def ping(address: str = PING_ADDRESS, count: int = 1, deadline: int = 1) -> bool
             stderr=devnull
         ) == 0
 
-def wait_for_network(max_stall: int) -> bool:
+
+def wait_for_network(max_stall: int) -> typing.Optional[bool]:
     """This tries to connect to repo.turris.cz to check if we can access it and
     otherwise it stalls execution for given maximum number of seconds.
 
@@ -47,8 +49,8 @@ def wait_for_network(max_stall: int) -> bool:
                 pass
 
     if max_stall is None:
-        return  # None means no stall
-    process = Process(target=network_test)
+        return None  # None means no stall
+    process = multiprocessing.Process(target=network_test)
     process.start()
     process.join(max_stall)
     if process.is_alive():
