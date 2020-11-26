@@ -17,7 +17,7 @@ OPKG.
 """
 import typing
 import pathlib
-import collections
+import collections.abc
 import datetime
 
 
@@ -83,7 +83,7 @@ class Package:
         return iter(self._fields)
 
 
-class Status(collections.Mapping):
+class Status(collections.abc.Mapping):
     """Abstraction on top of /usr/lib/opkg/status file.
     """
 
