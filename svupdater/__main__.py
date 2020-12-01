@@ -24,12 +24,12 @@ def parse_arguments():
                      Use this option when this is automatic execution. It prevents run of updater when autorun is not
                      enabled.
                      """)
-    prs.add_argument('--rand-sleep', const=7200, nargs='?', type=int,
+    prs.add_argument('--rand-sleep', const=7200, nargs='?', type=int, default=0,
                      help="""
                      Sleep random amount of the time with maximum of given number of seconds. In default two hours are
                      used.
                      """)
-    prs.add_argument('--wait-for-network', const=PING_TIMEOUT, type=int,
+    prs.add_argument('--wait-for-network', const=PING_TIMEOUT, type=int, default=10,
                      nargs='?', help="""
                      Check if Turris repository is accessible (even before going to background). You can specify timeout
                      in seconds as an argument. 10 seconds is used if no argument is specified. Specify zero to disable
