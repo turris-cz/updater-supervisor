@@ -67,11 +67,13 @@ class Package:
             self._add_field(name, value)
         if "Package" not in self._fields:
             return  # Can't continue
-        with open(pathlib.Path(rootdir) / "/usr/lib/opkg/info/" / (self._fields["Package"] + ".control"), "r") as file:
-            for line in file:
-                name, value = self._parse_field(line)
-                if name not in self._fields:
-                    self._add_field(name, value)
+        control_file = pathlib.Path(rootdir) / "/usr/lib/opkg/info/" / (self._fields["Package"] + ".control")
+        if control_file.exists():
+            with open(control_file, "r") as file:
+                for line in file:
+                    name, value = self._parse_field(line)
+                    if name not in self._fields:
+                        self._add_field(name, value)
 
     def __getitem__(self, key):
         return self._fields[key]
@@ -81,6 +83,12 @@ class Package:
 
     def __iter__(self):
         return iter(self._fields)
+
+    def is_installed(self):
+        """Just simple existence of package does not ensure it is installed. It can be in some broken state or kept for
+        system consistency while being in reality mostly removed. This function checks if package is fully installed.
+        """
+        return self._fields["Status"][2] == "installed"
 
 
 class Status(collections.abc.Mapping):
@@ -112,10 +120,10 @@ class Status(collections.abc.Mapping):
         It returns tuple of all package names.
         """
         res = []
-        if package in self._packages:
+        if package in self._packages and self._packages[package].is_installed():
             res.append(package)
         for name, pkg in self._packages.items():
-            if "Provides" in pkg and package in pkg["Provides"]:
+            if pkg.is_installed() and "Provides" in pkg and package in pkg["Provides"]:
                 res.append(name)
         return tuple(res)
 
