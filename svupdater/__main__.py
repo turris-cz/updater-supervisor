@@ -1,11 +1,11 @@
 import sys
 import argparse
-from svupdater import autorun
-from svupdater.prerun import random_sleep, wait_for_network
-from svupdater._supervisor import run
-from svupdater.const import PKGUPDATE_TIMEOUT, PKGUPDATE_TIMEOUT_KILL
-from svupdater.const import PING_TIMEOUT
-from svupdater.utils import daemonize, report
+from . import autorun
+from .prerun import random_sleep, wait_for_network
+from ._supervisor import run
+from .const import PKGUPDATE_TIMEOUT, PKGUPDATE_TIMEOUT_KILL
+from .const import TURRIS_REPO_HEALTH_TIMEOUT
+from .utils import daemonize, report
 
 HELP_DESCRIPTION = """
     Updater-ng supervisor used for system updating.
@@ -29,11 +29,11 @@ def parse_arguments():
                      Sleep random amount of the time with maximum of given number of seconds. In default two hours are
                      used.
                      """)
-    prs.add_argument('--wait-for-network', const=PING_TIMEOUT, type=int, default=10,
+    prs.add_argument('--wait-for-network', const=TURRIS_REPO_HEALTH_TIMEOUT, type=int, default=10,
                      nargs='?', help="""
-                     Check if Turris repository is accessible (even before going to background). You can specify timeout
-                     in seconds as an argument. 10 seconds is used if no argument is specified. Specify zero to disable
-                     network check.
+                     Check if Turris repository is accessible before running updater. You can specify timeout in seconds
+                     as an argument. 10 seconds is used if no argument is specified. Specify zero to disable network
+                     check.
                      """)
     prs.add_argument('--no-network-fail', action='store_true',
                      help="""
@@ -75,9 +75,10 @@ def main():
 
     if args.rand_sleep > 0:
         random_sleep(args.rand_sleep)
-        if not wait_for_network(args.wait_for_network) and not args.no_network_fail:
-            report("There seems to be no network connection to Turris servers. Please try again later.")
-            sys.exit(1)
+
+    if not wait_for_network(args.wait_for_network) and args.no_network_fail:
+        report("There seems to be no network connection to Turris servers. Please try again later.")
+        sys.exit(1)
 
     sys.exit(run(
         ensure_run=args.ensure_run,

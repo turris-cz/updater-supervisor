@@ -21,17 +21,12 @@ def random_sleep(max_seconds: int):
     time.sleep(suspend)
 
 
-def ping(address: str = const.PING_ADDRESS, count: int = 1, deadline: int = 1) -> bool:
-    """Ping address with given amount of pings and deadline.
-    Returns True on success and False if ping fails.
+def turris_repo_health(address: str = const.TURRIS_REPO_HEALTH_URL) -> bool:
+    """Tries to receive provided address and checks if result is "ok".
+    Returns True on success and False if download in any way fails.
     """
-    with open(os.devnull, 'w') as devnull:
-        return subprocess.call(
-            ['ping', '-c', str(count), '-w', str(deadline), address],
-            stdin=devnull,
-            stdout=devnull,
-            stderr=devnull
-        ) == 0
+    res = subprocess.run(['curl', address], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+    return res.returncode == 0 and res.stdout == "ok\n"
 
 
 def wait_for_network(max_stall: int) -> typing.Optional[bool]:
@@ -43,10 +38,17 @@ def wait_for_network(max_stall: int) -> typing.Optional[bool]:
 
     def network_test():
         "Run network test (expected to be run as subprocess)"
-        if not ping():
+        if not turris_repo_health():
             utils.report("Waiting for network connection")
-            while not ping():
-                pass
+            delay = 2
+            while True:
+                now = time.time()
+                if turris_repo_health():
+                    return
+                sleep_time = delay - time.time() - now
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
+                delay *= 2
 
     if max_stall is None:
         return None  # None means no stall

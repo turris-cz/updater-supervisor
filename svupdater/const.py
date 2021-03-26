@@ -23,11 +23,10 @@ PKGUPDATE_TIMEOUT = 3000
 # pkgupdate default kill timeout
 PKGUPDATE_TIMEOUT_KILL = 60
 
-# Address we ping to check if we have Internet connection
-PING_ADDRESS = "repo.turris.cz"
-# Maximum number of secomds we wait for network (testing if we can ping
-# PING_ADDRESS)
-PING_TIMEOUT = 10
+# The URL used to check if we can correctly access files on repo.turris.cz
+TURRIS_REPO_HEALTH_URL = "https://repo.turris.cz/.health"
+# Default timeout used to check if repo is accessible
+TURRIS_REPO_HEALTH_TIMEOUT = 10
 
 # Files used for approvals handling.
 APPROVALS_ASK_FILE = "/usr/share/updater/need_approval"
