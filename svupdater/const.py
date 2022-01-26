@@ -1,23 +1,22 @@
 """This just holds some constants used in updater-supervisor
 """
+import pathlib
 
 # Path where we should found supervisor pid lock file
 PID_FILE_PATH = "/var/run/updater-supervisor.pid"
-# Path where failure dumps are dumped
-FAIL_DUMP_PATH = "/var/log/updater-dump"
 # This is path to opkg lock
 OPKG_LOCK = "/var/lock/opkg.lock"
 
-PKGUPDATE_STATE = "/tmp/update-state"
-# File containing log of changes done on system
-PKGUPDATE_LOG = PKGUPDATE_STATE + "/log2"
-# File with latest error dumped from pkgupdate
-PKGUPDATE_ERROR_LOG = PKGUPDATE_STATE + "/last_error"
+# The system changelog that is maintained by updater
+PKGUPDATE_CHANGELOG = pathlib.Path("/usr/share/updater/changelog")
+# The file with last reported change
+CHANGELOG_LAST_REPORT = pathlib.Path("/usr/share/updater/.changelog.lastreport")
+
 # File containing stack trace from Lua
-PKGUPDATE_CRASH_LOG = "/tmp/updater_crash.log"
+PKGUPDATE_CRASH_LOG = pathlib.Path("/tmp/updater_crash.log")
 
 # Updater run command
-PKGUPDATE_CMD = ['pkgupdate', '--batch', '--state-log']
+PKGUPDATE_CMD = ['pkgupdate', '--batch']
 # pkgupdate default timeout
 PKGUPDATE_TIMEOUT = 3000
 # pkgupdate default kill timeout

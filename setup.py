@@ -17,6 +17,7 @@ setup(
         ]
     },
     install_requires=[
+        "packaging",
         "distro",
         "pyuci @ git+https://gitlab.labs.nic.cz/turris/pyuci.git",
     ],

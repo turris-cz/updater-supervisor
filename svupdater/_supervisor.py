@@ -9,7 +9,8 @@ import errno
 from threading import Thread, Lock
 from . import autorun, approvals, notify, hook
 from .utils import setup_alarm, report
-from .const import PKGUPDATE_CMD, APPROVALS_ASK_FILE, PKGUPDATE_STATE
+from .const import PKGUPDATE_CMD, APPROVALS_ASK_FILE
+import typing
 from ._pidlock import PidLock
 
 
@@ -36,12 +37,6 @@ class Supervisor:
         if self.process is not None:
             raise Exception("Only one call to Supervisor.run is allowed.")
         self.trace = ""
-        # Create state directory
-        try:
-            os.mkdir(PKGUPDATE_STATE)
-        except OSError as exc:
-            if exc.errno != errno.EEXIST:
-                raise
         # Prepare command to be run
         cmd = list(PKGUPDATE_CMD)
         if autorun.approvals():
@@ -133,7 +128,7 @@ def run(ensure_run, timeout, timeout_kill, verbose, hooklist=None):
         exit_code = supervisor.join(timeout, timeout_kill)
         if exit_code != 0:
             report("pkgupdate exited with: " + str(exit_code))
-            notify.failure(exit_code, supervisor.trace)
+            notify.crash(exit_code, supervisor.trace)
         else:
             report("pkgupdate reported no errors")
         del supervisor  # To clean signals and more
