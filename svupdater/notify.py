@@ -131,21 +131,34 @@ def changes():
 def approval():
     """Send notification about approval request."""
     apprv = approvals.current()
-    text = ""
+    changelist = ""
     for pkg in apprv["plan"]:
-        text += "\n • {0} {1} {2}".format(
-            pkg["op"].title(), pkg["name"], "" if pkg["new_ver"] is None else pkg["new_ver"]
+        changelist += f"\n • {pkg['op'].title()} {pkg['name']} {'' if pkg['new_ver'] is None else pkg['new_ver']}"
+    text_en = (
+        "Your approval is required to apply pending updates. You can grant it in the Foris administrative interface in the 'Updater' menu."
+        + (
+            "\nWarning: Reboot of the device is going to be performed automatically as part of update process."
+            if apprv["reboot"] == "finished"
+            else ""
         )
-    if (
-        subprocess.call(
-            ["create_notification", "-s", "update", const.NOTIFY_MESSAGE_CS + text, const.NOTIFY_MESSAGE_EN + text]
+        + (
+            "\nReboot of the device is going to be required to fully apply this update."
+            if apprv["reboot"] == "delayed"
+            else ""
         )
-        != 0
-    ):
-        utils.report("Notification creation failed.")
+        + changelist
+    )
+    text_cs = (
+        "Updater žádá o autorizaci akcí. Autorizaci můžete přidělit v administračním rozhraní Foris v záložce 'Updater'."
+        + ("\nPozor: Součástí aktualizace bude automatický restart zařízení." if apprv["reboot"] == "finished" else "")
+        + ("\nTato aktualizace vyžaduje restart zařízení k úplné aplikaci." if apprv["reboot"] == "delayed" else "")
+        + changelist
+    )
+    if subprocess.call(["create_notification", "-s", "update", text_cs.encode(), text_en.encode()]) != 0:
+        utils.report("Approval notification creation failed.")
 
 
 def notifier():
-    """This just calls notifier. It processes new notification and sends them together."""
+    """Process new notifications and send them together."""
     if subprocess.call(["notifier"]) != 0:
         utils.report("Notifier failed")

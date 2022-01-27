@@ -5,9 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Reboot requirement info to approval message
+
 ### Changed
 - Switch from state log to changelog and improve notifications about changes and
   updater crashes
+- `approvals.current` now returns `reboot` field as optional string instead of
+  boolean. This was done to allow access to the information when reboot is
+  requested to be performed.
 
 
 ## [1.4.3] - 2020-12-04
