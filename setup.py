@@ -19,6 +19,7 @@ setup(
     install_requires=[
         "packaging",
         "distro",
+        "crontab",
         "pyuci @ git+https://gitlab.labs.nic.cz/turris/pyuci.git",
     ],
 )

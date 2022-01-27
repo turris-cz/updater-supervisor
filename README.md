@@ -55,6 +55,14 @@ that has to be approved.
 setter for `updater.autorun.auto_approve_time`. This is number of hours before
 approval is automatically granted. This implements update delay.
 
+`auto_approve_window()` and `set_auto_approve_window(window)` is getter and
+setter for `updater.autorun.auto_approve_start` and
+`updater.autorun.auto_approve_end`. They serve to define the window when updates
+are automatically approved. There can be multiple starts and ends set (it can
+be a list in UCI). The values them self are crontab like period specifier. If
+window is defined toggether with `auto_approve_time` then that time has to
+elapse before auto approve window is considered.
+
 ### l10n
 Updater in Turris OS support multiple languages. Supported languages are provided
 by additional file provided by separate package but updater-supervisor serves as
@@ -77,7 +85,8 @@ Approvals
 ---------
 This is a feature that simulates otherwise normal package manager execution with
 user approving changes to system explicitly. This feature can also be configured
-to serve as delayed updates to just delay update by some amount of time.
+to serve as delayed updates to just delay update by some amount of time or to
+some time window.
 
 The implementation expects updater to be run as usual in periodic runs but
 supervisor automatically configures updater to not install update unless it was

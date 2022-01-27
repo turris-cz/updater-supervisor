@@ -1,4 +1,5 @@
 """Access and control functions of update approvals."""
+import datetime
 import os
 import time
 import typing
@@ -126,7 +127,7 @@ def deny(hsh: str) -> None:
     _set_stat("denied", hsh)
 
 
-def _approved():
+def _approved(now: typing.Optional[datetime.datetime] = None):
     """Return hash of approved plan.
 
     If there is no approved plan then it returns None.
@@ -135,11 +136,16 @@ def _approved():
     if not const.APPROVALS_ASK_FILE.is_file() or not const.APPROVALS_STAT_FILE.is_file() or not autorun.approvals():
         return None
 
+    now = now or datetime.datetime.now()
+    auto_grant_time = autorun.auto_approve_time()
+    auto_grant_window = autorun.auto_approve_window()
     with const.APPROVALS_STAT_FILE.open("r") as file:
         cols = file.readline().split(" ")
-        auto_grant_time = autorun.auto_approve_time()
         if cols[1].strip() == "granted" or (
-            auto_grant_time and int(cols[2]) < (time.time() - (auto_grant_time * 3600))
+            (auto_grant_window is None or auto_grant_window.in_window(now))
+            and (
+                not auto_grant_time or auto_grant_time and (int(cols[2]) < (now.timestamp() - (auto_grant_time * 3600)))
+            )
         ):
             return cols[0]
         return None
