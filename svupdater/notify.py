@@ -134,6 +134,7 @@ def approval():
     changelist = ""
     for pkg in apprv["plan"]:
         changelist += f"\n • {pkg['op'].title()} {pkg['name']} {'' if pkg['new_ver'] is None else pkg['new_ver']}"
+    installdate = approvals.next_approve()
     text_en = (
         "Your approval is required to apply pending updates. You can grant it in the Foris administrative interface in the 'Updater' menu."
         + (
@@ -147,12 +148,22 @@ def approval():
             else ""
         )
         + changelist
+        + (
+            f"\n\nThe update is going to be automatically updated some time after {installdate.isoformat()} unless there a newer update."
+            if installdate is not None
+            else ""
+        )
     )
     text_cs = (
         "Updater žádá o autorizaci akcí. Autorizaci můžete přidělit v administračním rozhraní Foris v záložce 'Updater'."
         + ("\nPozor: Součástí aktualizace bude automatický restart zařízení." if apprv["reboot"] == "finished" else "")
         + ("\nTato aktualizace vyžaduje restart zařízení k úplné aplikaci." if apprv["reboot"] == "delayed" else "")
         + changelist
+        + (
+            f"\n\nAktualizace bude automaticky nainstalována někdy po {installdate.isoformat()}, pakliže se neobjeví novější."
+            if installdate is not None
+            else ""
+        )
     )
     if subprocess.call(["create_notification", "-s", "update", text_cs.encode(), text_en.encode()]) != 0:
         utils.report("Approval notification creation failed.")
