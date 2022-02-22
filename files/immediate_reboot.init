@@ -12,6 +12,9 @@ status() {
 }
 
 start() {
+	# Make sure that this is not executed from package. Recovery when package is
+	# being installed is not desirable.
+	[ -z "$PKG_UPGRADE" ] || return 0
 	# Recover updater's journal if it exists
 	if [ -e "/usr/share/updater/journal" ]; then
 		# Note: supervisor runs pkgupdate that recovers run from journal and later
@@ -23,6 +26,9 @@ start() {
 }
 
 stop() {
+	# Make sure that this is not executed from package. We do not want to block
+	# the removal of package.
+	[ -z "$PKG_UPGRADE" ] || return 0
 	# Block shutdown when update is running
 	# We have to use Python3 as there seems to be no shell tool to simply use
 	# POSIX file locks (lockf instead of flock)
