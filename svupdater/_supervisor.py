@@ -35,14 +35,20 @@ class Supervisor:
         self.trace = ""
         # Prepare command to be run
         cmd = list(PKGUPDATE_CMD)
-        if autorun.approvals() and (
-            autorun.auto_approve_time() is not None or autorun.auto_approve_window().in_window(now) is None
-        ):
-            # Ask approval if approvals are enabled or when we are in approve window and there is no approve timeout
-            cmd.append("--ask-approval=" + str(APPROVALS_ASK_FILE))
-            approved = approvals._approved(now)
-            if approved is not None:
-                cmd.append("--approve=" + approved)
+        if autorun.approvals():
+            auto_grant_window = autorun.auto_approve_window()
+            if (
+                autorun.auto_approve_time() is not None
+                or auto_grant_window is None
+                or auto_grant_window.in_window(now) is None
+            ):
+                # Ask for approval only if approve time delay is configured (in such case there has to be at least one
+                # run to plan it and thus we need approval file to delay installation). Another option is that we are
+                # outside of auto-grant window and thus should ask for approval instead of directly installing.
+                cmd.append("--ask-approval=" + str(APPROVALS_ASK_FILE))
+                approved = approvals._approved(now)
+                if approved is not None:
+                    cmd.append("--approve=" + approved)
         # Clear old dump files
         notify.clear_logs()
         # Open process

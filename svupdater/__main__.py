@@ -70,7 +70,7 @@ def parse_arguments():
 
 
 def main():
-    "Main function for updater-supervisor run as executable"
+    """Main function for updater-supervisor run as executable."""
     args = parse_arguments()
 
     if args.autorun and not autorun.enabled():
@@ -83,15 +83,18 @@ def main():
     fixednow = None
     if args.rand_sleep > 0:
         now = datetime.datetime.now()
-        # Note: the random sleep could skip the allowed window so if we detect one then we tweak sleep to hit it.
-        wstart, wend = autorun.auto_approve_window().next_window(now)
-        overlap_start = max(now, wstart)
-        overlap_end = min(now + datetime.timedelta(seconds=args.rand_sleep), wend)
-        if overlap_start >= overlap_end:
-            random_sleep(0, args.rand_sleep)
-        else:
-            random_sleep((overlap_start - now).total_seconds(), (overlap_end - now).total_seconds())
-            fixednow = min(datetime.datetime.now(), wend)
+        sleep_start = now
+        sleep_end = now + datetime.timedelta(seconds=args.rand_sleep)
+        auto_grant_window = autorun.auto_approve_window()
+        if auto_grant_window is not None:
+            wstart, wend = auto_grant_window.next_window(now)
+            # Note: the random sleep could skip the allowed window so if we detect one then we tweak sleep to hit it.
+            # In other words we use window start as sleep start if it is before end of the sleep.
+            sleep_start = sleep_start if wstart > sleep_end else max(sleep_start, wstart)
+            sleep_end = sleep_end if wend < sleep_start else min(sleep_end, wend)
+        random_sleep((sleep_start - now).total_seconds(), (sleep_end - now).total_seconds())
+        # Note: we fake the current time to hit the auto-grant-window even if we sleep right to the end
+        fixednow = min(datetime.datetime.now(), sleep_end)
 
     if not wait_for_network(args.wait_for_network) and args.no_network_fail:
         report("There seems to be no network connection to Turris servers. Please try again later.")

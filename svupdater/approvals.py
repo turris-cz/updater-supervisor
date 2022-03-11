@@ -151,12 +151,17 @@ def _approved(now: typing.Optional[datetime.datetime] = None):
         return None
 
 
-def next_approve(now: typing.Optional[datetime.datetime] = None) -> datetime.datetime:
+def next_approve(now: typing.Optional[datetime.datetime] = None) -> typing.Optional[datetime.datetime]:
     """Check when approval created now would be auto approved. Returns None if never."""
     now = now or datetime.datetime.now()
-    auto_grant_time = autorun.auto_approve_time() or 0
+    auto_grant_time = autorun.auto_approve_time()
     auto_grant_window = autorun.auto_approve_window()
-    return auto_grant_window.next_window(now + datetime.timedelta(seconds=auto_grant_time))[0]
+    auto_grant_date = now + datetime.timedelta(seconds=auto_grant_time or 0)
+    if auto_grant_window is not None:
+        return auto_grant_window.next_window(auto_grant_date)[0]
+    if auto_grant_time is not None:
+        return auto_grant_date
+    return None
 
 
 def _gen_new_stat(new_hash):
