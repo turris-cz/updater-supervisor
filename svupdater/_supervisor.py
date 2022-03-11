@@ -20,7 +20,7 @@ class Supervisor:
     def __init__(self, verbose: bool = False):
         self.verbose = verbose
         self.kill_timeout = 0
-        self.process = None
+        self.process: typing.Optional[subprocess.Popen] = None
         self.trace = ""
         self.trace_lock = Lock()
         self._devnull = open(os.devnull, "w")

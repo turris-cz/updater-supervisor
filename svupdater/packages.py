@@ -60,7 +60,7 @@ class Package:
             self._fields[name] = value
 
     def __init__(self, rootdir, block: typing.Iterable[str]):
-        self._fields = dict()
+        self._fields: dict[str, str] = {}
         # TODO this does not support description we just skip space indented lines
         for line in block:
             name, value = self._parse_field(line)

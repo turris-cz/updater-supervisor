@@ -29,8 +29,12 @@ def turris_repo_health(address: str = const.TURRIS_REPO_HEALTH_URL) -> bool:
     return res.returncode == 0 and res.stdout == "ok\n"
 
 
-def wait_for_network(max_stall: int) -> typing.Optional[bool]:
+def wait_for_network(max_stall: int) -> bool:
     """Wait for ability to access the repo.turris.cz.
+
+    The max_stall can be any number of seconds but too small numbers (few seconds) should not be used as it might not be
+    enough time to actually perform even a single network connection test. For zero and negative numbers this function
+    behaves the same way as call to the turris_repo_health.
 
     Returns True if connection is successful and False if wait timed out.
     """
@@ -49,8 +53,8 @@ def wait_for_network(max_stall: int) -> typing.Optional[bool]:
                     time.sleep(sleep_time)
                 delay *= 2
 
-    if max_stall is None:
-        return None  # None means no stall
+    if max_stall <= 0:
+        return turris_repo_health()
     process = multiprocessing.Process(target=network_test)
     process.start()
     process.join(max_stall)

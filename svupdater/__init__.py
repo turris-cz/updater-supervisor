@@ -22,10 +22,12 @@ def updater_supervised() -> bool:
     return _pid_locked()
 
 
-def run(wait_for_network: bool = False, ensure_run: bool = False, timeout: int = const.PKGUPDATE_TIMEOUT,
+def run(wait_for_network: typing.Union[bool, int] = False, ensure_run: bool = False, timeout:
+        int = const.PKGUPDATE_TIMEOUT,
         timeout_kill: int = const.PKGUPDATE_TIMEOUT_KILL,
         hooklist: typing.Union[None, typing.Iterable[str]] = None):
     """Run updater.
+
     This call will spawn daemon process and returns. But be aware that at first it checks if some other supervisor is
     not running and it takes file lock because of that. If someone messed up that lock then it won't return immediately.
     Calling this with timeout is advised for time sensitive applications.
@@ -33,15 +35,14 @@ def run(wait_for_network: bool = False, ensure_run: bool = False, timeout: int =
     You can pass hooks (single line shell scripts) to be run after updater.
     """
     if not autorun.enabled():
-        raise UpdaterDisabledError(
-            "Can't run. Updater is configured to be disabled.")
+        raise UpdaterDisabledError("Can't run. Updater is configured to be disabled.")
     # Fork to daemon
     if _daemonize():
         return
     # Wait for network if configured
     if wait_for_network:
-        if type(wait_for_network == bool):
-            wait_for_network = const.PING_TIMEOUT
+        if isinstance(wait_for_network, bool):
+            wait_for_network = const.TURRIS_REPO_HEALTH_TIMEOUT
         _wait_for_network(wait_for_network)
     # And run updater
     _run(

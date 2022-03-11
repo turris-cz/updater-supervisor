@@ -3,13 +3,15 @@
 This is pretty fragile and info provided by this module should not be considered as strictly correct. There is
 possibility that some of the logs might fail to match or that logging to syslog is disabled or even syslog being broken.
 """
+import abc
+import datetime
+import io
 import os
 import re
 import sys
-import abc
 import time
 import typing
-import datetime
+
 from . import const
 from . import opkg_lock as _opkg_lock
 
@@ -158,6 +160,7 @@ class LogReader:
             for msg in lr:
                     print(msg)
     """
+
     _log_line = r"([^ ]+ +[^ ]+ [^ ]+) [^ ]+ updater\[[\d]+\]: [^ :]+:[\d]+ \([^)]*\): (.*)"
     _lines_repre = {
         r"Target Turris OS: (.*)": MsgTargetTurrisOS,
@@ -181,12 +184,13 @@ class LogReader:
         """
         self.log = log
         self.blocking = blocking
-        self._file = None
+        self._file: typing.Optional[io.BytesIO] = None
         self._re_log_line = re.compile(self._log_line)
         self._re_lines = {re.compile(regexp): repre for regexp, repre in self._lines_repre.items()}
 
     def open(self):
         """Open log for reading.
+
         You have to call this before any other method.
         """
         if self._file is not None:
@@ -194,21 +198,20 @@ class LogReader:
         self._file = open(self.log, "rb")
 
     def close(self):
-        """Close log file.
-        """
+        """Close log file."""
         self._file.close()
         self._file = None
 
     @staticmethod
     def _parse_date(strdate):
-        date = datetime.datetime.strptime(strdate, '%b %d %H:%M:%S')
+        date = datetime.datetime.strptime(strdate, "%b %d %H:%M:%S")
         # We do not have year in syslog. We have to somehow identify it. Reasonable expectation is current year but we
         # have to cover new year so we have to check month and possibly decrease year by one.
         now = datetime.datetime.utcnow()
         return date.replace(year=now.year if now.month >= date.month else (now.year - 1))
 
     def _clasify_line(self, line):
-        line = line.decode(sys.getdefaultencoding(), 'ignore').rstrip('\n')
+        line = line.decode(sys.getdefaultencoding(), "ignore").rstrip("\n")
         match = self._re_log_line.fullmatch(line)
         if match is not None:
             date = self._parse_date(match.group(1))
@@ -219,11 +222,13 @@ class LogReader:
                     return self._re_lines[re_line](date, lmatch)
         return None
 
-    def seek_latest(self, msgtype: Msg = MsgTargetTurrisOS) -> typing.Optional[Msg]:
-        """Seeks latest message of given type. In default that is MsgTargetTurrisOS as that is in general the first
-        message printed by updater.
-        It returns that message if it was located or None of not.
+    def seek_latest(self, msgtype: typing.Type[Msg] = MsgTargetTurrisOS) -> typing.Optional[Msg]:
+        """Seeks latest message of given type.
+
+        In default that is MsgTargetTurrisOS as that is in general the first message printed by updater.
+        It returns that message if it was located or None if not.
         """
+        assert self._file is not None, "Log has to be openned first!"
         # We do not want to use blocking so disable it for now
         blocking = self.blocking
         self.blocking = False
@@ -240,8 +245,9 @@ class LogReader:
         self.blocking = blocking
         return latest_msg
 
-    def seek_after(self, date: datetime.datetime = datetime.datetime.utcnow(),
-                   msgtype: Msg = MsgTargetTurrisOS) -> typing.Optional[Msg]:
+    def seek_after(
+        self, date: datetime.datetime = datetime.datetime.utcnow(), msgtype: typing.Type[Msg] = MsgTargetTurrisOS
+    ) -> typing.Optional[Msg]:
         """Seeks message of given type that happens right after given date. In default message type this looks for is
         MsgTargetTurrisOS and date is utcnow.
         Note that date has to be in UTC as syslog logs in UTC.
@@ -262,6 +268,7 @@ class LogReader:
 
         It returns parsed updater's line or None if end of the log was reached.
         """
+        assert self._file is not None, "Log has to be openned first!"
         while True:
             line = self._file.readline()
             if not line:
@@ -290,8 +297,9 @@ class LogReader:
         return res
 
 
-def latest_message(msgtype: Msg):
+def latest_message(msgtype: typing.Type[Msg]) -> typing.Optional[datetime.datetime]:
     """This function looks for latest message of given type in log and returns its date.
+
     This is unreliable. We might not have that in syslog as reboot happened or someone removed log. This also does not
     support and so not reads gzipped logs.
 
@@ -307,7 +315,8 @@ def latest_message(msgtype: Msg):
 
 
 def last_check() -> typing.Optional[datetime.datetime]:
-    """This is simple function that checks for date of last updater's execution.
+    """Simple function that checks for date of last updater's execution.
+
     This function uses latest_message so same note about unreliable result applies here as well. Not only that but this
     is also based on unreliable MsgTargetTurrisOS.
 
@@ -317,7 +326,8 @@ def last_check() -> typing.Optional[datetime.datetime]:
 
 
 def last_run() -> typing.Optional[datetime.datetime]:
-    """This is simple function that checks for date of last updater's execution.
+    """Simple function that checks for date of the last updater's execution.
+
     This function uses latest_message so same note about unreliable result applies here as well.
 
     It returns datetime or None if time of last update is unknown.
