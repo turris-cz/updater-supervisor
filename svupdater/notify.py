@@ -136,7 +136,7 @@ def approval():
         changelist += f"\n • {pkg['op'].title()} {pkg['name']} {'' if pkg['new_ver'] is None else pkg['new_ver']}"
     installdate = approvals.next_approve()
     text_en = (
-        "Your approval is required to apply pending updates. You can grant it in the Foris administrative interface in the 'Updater' menu."
+        "Your approval is required to apply pending updates. You can grant it in the reForis administrative interface in the 'Package Management — Updates' menu."
         + (
             "\nWarning: Reboot of the device is going to be performed automatically as part of update process."
             if apprv["reboot"] == "finished"
@@ -155,7 +155,7 @@ def approval():
         )
     )
     text_cs = (
-        "Updater žádá o autorizaci akcí. Autorizaci můžete přidělit v administračním rozhraní Foris v záložce 'Updater'."
+        "Updater žádá o autorizaci akcí. Autorizaci můžete přidělit v administračním rozhraní reForis v záložce 'Správa balíčků — Aktualizace'."
         + ("\nPozor: Součástí aktualizace bude automatický restart zařízení." if apprv["reboot"] == "finished" else "")
         + ("\nTato aktualizace vyžaduje restart zařízení k úplné aplikaci." if apprv["reboot"] == "delayed" else "")
         + changelist
