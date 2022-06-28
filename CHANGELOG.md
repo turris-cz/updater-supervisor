@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed case when updates were installed automatically, even though manual
   confirmation was required.
+- Fix detection of delayed reboot and thus create complete notification for it.
+
 
 ## [1.5.2] - 2022-03-17
 ### Fixed

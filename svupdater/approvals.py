@@ -81,7 +81,7 @@ def current() -> typing.Optional[ApprovalRequest]:
                 "finished"
                 if "finished" in (result["reboot"], cols[3].strip())
                 else "delayed"
-                if "delayd" in (result["reboot"], cols[3].strip())
+                if "delayed" in (result["reboot"], cols[3].strip())
                 else None
             )
 
