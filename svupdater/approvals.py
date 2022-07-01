@@ -139,16 +139,23 @@ def _approved(now: typing.Optional[datetime.datetime] = None):
     now = now or datetime.datetime.now()
     auto_grant_time = autorun.auto_approve_time()
     auto_grant_window = autorun.auto_approve_window()
+    approval_in_window = auto_grant_window and auto_grant_window.in_window(now)
+
     with const.APPROVALS_STAT_FILE.open("r") as file:
         cols = file.readline().split(" ")
-        if cols[1].strip() == "granted" or (
-            (auto_grant_window is None or auto_grant_window.in_window(now))
-            and (
-                not auto_grant_time or auto_grant_time and (int(cols[2]) < (now.timestamp() - (auto_grant_time * 3600)))
-            )
-        ):
-            return cols[0]
-        return None
+
+    delayed_time_passed = auto_grant_time and (int(cols[2]) < (now.timestamp() - (auto_grant_time * 3600)))
+    approval_hash = cols[0]
+    if cols[1].strip() == "granted":
+        return approval_hash
+
+    if delayed_time_passed and auto_grant_window is None:
+        return approval_hash
+
+    if approval_in_window and (auto_grant_time is None or delayed_time_passed):
+        return approval_hash
+
+    return None
 
 
 def next_approve(now: typing.Optional[datetime.datetime] = None) -> typing.Optional[datetime.datetime]:
