@@ -142,7 +142,7 @@ def _approved(now: typing.Optional[datetime.datetime] = None):
     approval_in_window = auto_grant_window and auto_grant_window.in_window(now)
 
     with const.APPROVALS_STAT_FILE.open("r") as file:
-        cols = file.readline().split(" ")
+        cols = file.readline().split()
 
     delayed_time_passed = auto_grant_time and (int(cols[2]) < (now.timestamp() - (auto_grant_time * 3600)))
     approval_hash = cols[0]
