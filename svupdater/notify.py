@@ -26,21 +26,18 @@ def crash(exit_code: int, trace: typing.Optional[str]):
 
     msg_en = "Updater execution failed:\n"
     msg_cs = "Běh updateru selhal:\n"
+    # The exit code 1 is used if there were some issues that updater handled. We are interested only in Lua
+    # crashes. Anything else is package installation failure and crash log is not relevant.
     if exit_code == 1:
-        if not const.PKGUPDATE_CRASH_LOG.is_file():
-            # The exit code 1 is used if there were some issues that updater handled. We are interested only in Lua
-            # crashes. Anything else is package installation failure and crash log is not relevant.
-            return
-        with const.PKGUPDATE_CRASH_LOG.open("r") as file:
-            content = "\n".join(file.readlines())
-        msg_en += content
-        msg_cs += content
-    elif trace:
-        msg_en += trace + f"\n\nExit code: {exit_code}"
-        msg_cs += trace + f"\n\nNávratový kód: {exit_code}"
+        msg_en += trace
+        msg_cs += trace
     else:
-        msg_en += f"Unknown error (Exit code: {exit_code})"
-        msg_cs += f"Neznámá chyba (Návratový kód: {exit_code})"
+        if const.PKGUPDATE_CRASH_LOG.is_file():
+            with const.PKGUPDATE_CRASH_LOG.open("r") as file:
+                content = "\n".join(file.readlines())
+
+        msg_en += content + f"Unknown error (Exit code: {exit_code})"
+        msg_cs += content + f"Neznámá chyba (Návratový kód: {exit_code})"
 
     if subprocess.call(["create_notification", "-s", "error", msg_cs, msg_en]) != 0:
         utils.report("Notification creation about crash failed.")
