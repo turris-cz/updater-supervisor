@@ -3,11 +3,11 @@ from setuptools import setup
 
 setup(
     name='svupdater',
-    version='1.5.3',
+    version='1.5.4',
     description="Supervising application and library for updater-ng.",
-    url="https://gitlab.labs.nic.cz/turris/updater/supervisor",
+    url="https://gitlab.nic.cz/turris/updater/supervisor",
     author="CZ.NIC, z. s. p. o.",
-    author_email="karel.koci@nic.cz",
+    author_email="packaging@turris.cz",
     license="MIT",
 
     packages=['svupdater'],
