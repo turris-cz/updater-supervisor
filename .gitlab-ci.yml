@@ -1,0 +1,7 @@
+stages:
+  - build
+  - publish
+
+include:
+  - remote: "https://gitlab.nic.cz/turris/foris-controller/packages/-/raw/master/templates/python/base.yml"
+  - remote: "https://gitlab.nic.cz/turris/foris-controller/packages/-/raw/master/templates/python/build_and_publish.yml"
