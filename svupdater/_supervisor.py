@@ -28,13 +28,15 @@ class Supervisor:
         self._stderr_thread = Thread(target=self._stderr, name="pkgupdate-stderr")
         atexit.register(self._at_exit)
 
-    def run(self, now: typing.Optional[datetime.datetime] = None):
+    def run(self, now: typing.Optional[datetime.datetime] = None, reinstall_packages: bool = False):
         """Run pkgupdate"""
         if self.process is not None:
             raise Exception("Only one call to Supervisor.run is allowed.")
         self.trace = ""
         # Prepare command to be run
         cmd = list(PKGUPDATE_CMD)
+        if reinstall_packages:
+            cmd.append("--reinstall-all")
         if autorun.approvals():
             auto_grant_window = autorun.auto_approve_window()
             if (
@@ -118,6 +120,7 @@ def run(
     verbose: bool,
     hooklist=None,
     now: typing.Optional[datetime.datetime] = None,
+    reinstall_packages: bool = False
 ):
     """Run updater."""
     pidlock = PidLock()
@@ -131,7 +134,7 @@ def run(
         pidlock.unblock()
         supervisor = Supervisor(verbose=verbose)
         report("Running pkgupdate")
-        supervisor.run(now)
+        supervisor.run(now, reinstall_packages)
         exit_code = supervisor.join(timeout, timeout_kill)
         if exit_code != 0:
             report("pkgupdate exited with: " + str(exit_code))

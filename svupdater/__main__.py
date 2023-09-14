@@ -66,6 +66,11 @@ def parse_arguments():
         default=PKGUPDATE_TIMEOUT_KILL,
         help="Set time in seconds after which pkgupdate is killed. This is time from timeout. In default one minute is used.",
     )
+    prs.add_argument(
+        "--reinstall-all",
+        action="store_true",
+        help="Reinstall all installed packages",
+    )
     return prs.parse_args()
 
 
@@ -107,6 +112,7 @@ def main():
             timeout_kill=args.timeout_kill,
             verbose=not args.quiet,
             now=fixednow,
+            reinstall_packages=args.reinstall_all
         )
     )
 
