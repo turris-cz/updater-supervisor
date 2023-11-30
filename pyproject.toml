@@ -17,7 +17,7 @@ dependencies = [
     "crontab",
     "distro",
     "packaging",
-    "pyuci @ git+https://gitlab.labs.nic.cz/turris/pyuci.git",
+    "pyuci",
 ]
 
 [project.scripts]
