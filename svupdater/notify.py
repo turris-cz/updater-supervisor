@@ -74,21 +74,25 @@ def changes():
                 text_en += f" • Removed package {pkg.name} version {pkg.old_version}\n"
                 text_cs += f" • Odstraněn balíček {pkg.name} verze {pkg.old_version}\n"
             else:
-                old_version = packaging.version.parse(pkg.old_version)
-                new_version = packaging.version.parse(pkg.new_version)
-                if old_version > new_version:
-                    text_en += f" • Downgraded package {pkg.name} from version {pkg.old_version} to version {pkg.new_version}\n"
-                    text_cs += f" • Balíček {pkg.name} byl ponížen z verze {pkg.old_version} na verzi {pkg.new_version}\n"
-                elif old_version < new_version:
-                    text_en += (
-                        f" • Updated package {pkg.name} from version {pkg.old_version} to version {pkg.new_version}\n"
-                    )
-                    text_cs += (
-                        f" • Aktualizován balíček {pkg.name} z verze {pkg.old_version} na verzi {pkg.new_version}\n"
-                    )
-                else:
-                    text_en += f" • Reinstalled package {pkg.name} version {pkg.old_version}\n"
-                    text_cs += f" • Přeinstalován balíček {pkg.name} verze {pkg.old_version}\n"
+                try:
+                    old_version = packaging.version.parse(pkg.old_version)
+                    new_version = packaging.version.parse(pkg.new_version)
+                    if old_version > new_version:
+                        text_en += f" • Downgraded package {pkg.name} from version {pkg.old_version} to version {pkg.new_version}\n"
+                        text_cs += f" • Balíček {pkg.name} byl ponížen z verze {pkg.old_version} na verzi {pkg.new_version}\n"
+                    elif old_version < new_version:
+                        text_en += (
+                            f" • Updated package {pkg.name} from version {pkg.old_version} to version {pkg.new_version}\n"
+                        )
+                        text_cs += (
+                            f" • Aktualizován balíček {pkg.name} z verze {pkg.old_version} na verzi {pkg.new_version}\n"
+                        )
+                    else:
+                        text_en += f" • Reinstalled package {pkg.name} version {pkg.old_version}\n"
+                        text_cs += f" • Přeinstalován balíček {pkg.name} verze {pkg.old_version}\n"
+                except packaging.version.InvalidVersion:
+                    text_en += f" • Reinstalled package {pkg.name} from version {pkg.old_version} to version {pkg.new_version}\n"
+                    text_cs += f" • Přeinstalován balíček {pkg.name} z verze {pkg.old_version} na verzi {pkg.new_version}\n"
         for fail in transaction.fails:
             type_en = {
                 "preinst": "pre-installation",
