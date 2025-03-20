@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "svupdater"
-version="1.5.6"
+version="1.6.0"
 dynamic = []
 description = "Supervising application and library for updater-ng."
 readme = "README.md"
