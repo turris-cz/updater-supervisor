@@ -1,5 +1,5 @@
-"""Language support functions.
-"""
+"""Language support functions."""
+
 import os
 import typing
 import euci
@@ -8,12 +8,11 @@ from .exceptions import UpdaterNoSuchLangError
 
 
 def languages() -> typing.Dict[str, bool]:
-    """Returns dict with all available l10n translations for system packages.
-    """
+    """Returns dict with all available l10n translations for system packages."""
     result = dict()
 
     if os.path.isfile(const.L10N_FILE):  # Just to be sure
-        with open(const.L10N_FILE, 'r') as file:
+        with open(const.L10N_FILE, "r") as file:
             for line in file.readlines():
                 if not line.strip():
                     continue  # ignore empty lines
@@ -37,15 +36,16 @@ def update_languages(langs: typing.Iterable[str]):
     # Verify langs
     expected = set()
     if os.path.isfile(const.L10N_FILE):  # Just to be sure
-        with open(const.L10N_FILE, 'r') as file:
+        with open(const.L10N_FILE, "r") as file:
             for line in file.readlines():
                 expected.add(line.strip())
     for lang in langs:
         if lang not in expected:
             raise UpdaterNoSuchLangError(
-                "Can't enable unsupported language code:" + str(lang))
+                "Can't enable unsupported language code:" + str(lang)
+            )
 
     # Set
     with euci.EUci() as uci:
-        uci.set('updater', 'l10n', 'l10n')
-        uci.set('updater', 'l10n', 'langs', langs)
+        uci.set("updater", "l10n", "l10n")
+        uci.set("updater", "l10n", "langs", langs)

@@ -2,6 +2,7 @@
 
 The changelog file tracks transactions (in other words set of changes) applied on system by updater.
 """
+
 import dataclasses
 import typing
 
@@ -18,7 +19,10 @@ class UpdaterPackageChange:
 @dataclasses.dataclass
 class UpdaterScriptFail:
     script: typing.Union[
-        typing.Literal["preinst"], typing.Literal["prerm"], typing.Literal["postinst"], typing.Literal["postrm"]
+        typing.Literal["preinst"],
+        typing.Literal["prerm"],
+        typing.Literal["postinst"],
+        typing.Literal["postrm"],
     ]
     pkgname: str
     exit_code: int
@@ -39,7 +43,7 @@ def parse_changelog() -> tuple[UpdaterTransaction, ...]:
         with const.PKGUPDATE_CHANGELOG.open("r") as file:
             res: list[dict] = []
             for line in file:
-                line = line.rstrip('\n')
+                line = line.rstrip("\n")
                 if line.startswith("|"):
                     res[-1]["fails"][-1]["log"].append(line[1:])
                 else:
@@ -57,11 +61,18 @@ def parse_changelog() -> tuple[UpdaterTransaction, ...]:
                         res[-1]["end"] = int(clms[1])
                     elif clms[0] == "PKG":
                         res[-1]["changes"].append(
-                            UpdaterPackageChange(name=clms[1], old_version=clms[2], new_version=clms[3])
+                            UpdaterPackageChange(
+                                name=clms[1], old_version=clms[2], new_version=clms[3]
+                            )
                         )
                     elif clms[0] == "SCRIPT":
                         res[-1]["fails"].append(
-                            {"script": clms[2], "pkgname": clms[1], "exit_code": int(clms[3]), "log": []}
+                            {
+                                "script": clms[2],
+                                "pkgname": clms[1],
+                                "exit_code": int(clms[3]),
+                                "log": [],
+                            }
                         )
                     else:
                         utils.report(f"Unknown line in updater's changelog: {line}")

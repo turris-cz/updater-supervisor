@@ -1,6 +1,6 @@
 """Access and control functions of update approvals."""
+
 import datetime
-import os
 import time
 import typing
 
@@ -20,7 +20,9 @@ class ApprovalRequest(typing.TypedDict):
     status: str
     time: int
     plan: typing.List[PlannedPackage]
-    reboot: typing.Optional[typing.Union[typing.Literal["delayed"], typing.Literal["finished"]]]
+    reboot: typing.Optional[
+        typing.Union[typing.Literal["delayed"], typing.Literal["finished"]]
+    ]
 
 
 def current() -> typing.Optional[ApprovalRequest]:
@@ -49,7 +51,11 @@ def current() -> typing.Optional[ApprovalRequest]:
     "reboot": This is either None if no package required reboot or "delayed" or "finished" if some package does.
     """
     # Both files have to exists otherwise it is invalid approval request
-    if not const.APPROVALS_ASK_FILE.is_file() or not const.APPROVALS_STAT_FILE.is_file() or not autorun.approvals():
+    if (
+        not const.APPROVALS_ASK_FILE.is_file()
+        or not const.APPROVALS_STAT_FILE.is_file()
+        or not autorun.approvals()
+    ):
         return None
 
     with const.APPROVALS_STAT_FILE.open("r") as file:
@@ -91,7 +97,11 @@ def current() -> typing.Optional[ApprovalRequest]:
 def _set_stat(status, hsh):
     """Set given status to APPROVALS_STAT_FILE if hsh matches current hash"""
     # Both files have to exists otherwise it is invalid approval request
-    if not const.APPROVALS_ASK_FILE.is_file() or not const.APPROVALS_STAT_FILE.is_file() or not autorun.approvals():
+    if (
+        not const.APPROVALS_ASK_FILE.is_file()
+        or not const.APPROVALS_STAT_FILE.is_file()
+        or not autorun.approvals()
+    ):
         return
 
     # TODO locks (we should lock stat file before doing this)
@@ -133,7 +143,11 @@ def _approved(now: typing.Optional[datetime.datetime] = None):
     If there is no approved plan then it returns None.
     """
     # Both files have to exists otherwise it is invalid approval request
-    if not const.APPROVALS_ASK_FILE.is_file() or not const.APPROVALS_STAT_FILE.is_file() or not autorun.approvals():
+    if (
+        not const.APPROVALS_ASK_FILE.is_file()
+        or not const.APPROVALS_STAT_FILE.is_file()
+        or not autorun.approvals()
+    ):
         return None
 
     now = now or datetime.datetime.now()
@@ -144,7 +158,9 @@ def _approved(now: typing.Optional[datetime.datetime] = None):
     with const.APPROVALS_STAT_FILE.open("r") as file:
         cols = file.readline().split()
 
-    delayed_time_passed = auto_grant_time and (int(cols[2]) < (now.timestamp() - (auto_grant_time * 3600)))
+    delayed_time_passed = auto_grant_time and (
+        int(cols[2]) < (now.timestamp() - (auto_grant_time * 3600))
+    )
     approval_hash = cols[0]
     if cols[1].strip() == "granted":
         return approval_hash
@@ -158,7 +174,9 @@ def _approved(now: typing.Optional[datetime.datetime] = None):
     return None
 
 
-def next_approve(now: typing.Optional[datetime.datetime] = None) -> typing.Optional[datetime.datetime]:
+def next_approve(
+    now: typing.Optional[datetime.datetime] = None,
+) -> typing.Optional[datetime.datetime]:
     """Check when approval created now would be auto approved. Returns None if never."""
     now = now or datetime.datetime.now()
     auto_grant_time = autorun.auto_approve_time()

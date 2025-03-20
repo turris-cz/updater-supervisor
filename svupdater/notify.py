@@ -2,8 +2,8 @@
 
 These are notifications send to user using notification system.
 """
+
 import datetime
-import os
 import subprocess
 import typing
 
@@ -63,13 +63,19 @@ def changes():
         if transaction.start <= last_message or transaction.end is None:
             continue
         last_message = transaction.start
-        date = datetime.datetime.fromtimestamp(transaction.start, tz=datetime.timezone.utc).isoformat()
+        date = datetime.datetime.fromtimestamp(
+            transaction.start, tz=datetime.timezone.utc
+        ).isoformat()
         text_en += f"Changes performed by updater at {date}\n"
         text_cs += f"Změny provedené updaterem v {date}\n"
         for pkg in transaction.changes:
             if not pkg.old_version:
-                text_en += f" • Installed package {pkg.name} version {pkg.new_version}\n"
-                text_cs += f" • Nainstalován balíček {pkg.name} verze {pkg.new_version}\n"
+                text_en += (
+                    f" • Installed package {pkg.name} version {pkg.new_version}\n"
+                )
+                text_cs += (
+                    f" • Nainstalován balíček {pkg.name} verze {pkg.new_version}\n"
+                )
             elif not pkg.new_version:
                 text_en += f" • Removed package {pkg.name} version {pkg.old_version}\n"
                 text_cs += f" • Odstraněn balíček {pkg.name} verze {pkg.old_version}\n"
@@ -81,12 +87,8 @@ def changes():
                         text_en += f" • Downgraded package {pkg.name} from version {pkg.old_version} to version {pkg.new_version}\n"
                         text_cs += f" • Balíček {pkg.name} byl ponížen z verze {pkg.old_version} na verzi {pkg.new_version}\n"
                     elif old_version < new_version:
-                        text_en += (
-                            f" • Updated package {pkg.name} from version {pkg.old_version} to version {pkg.new_version}\n"
-                        )
-                        text_cs += (
-                            f" • Aktualizován balíček {pkg.name} z verze {pkg.old_version} na verzi {pkg.new_version}\n"
-                        )
+                        text_en += f" • Updated package {pkg.name} from version {pkg.old_version} to version {pkg.new_version}\n"
+                        text_cs += f" • Aktualizován balíček {pkg.name} z verze {pkg.old_version} na verzi {pkg.new_version}\n"
                     else:
                         text_en += f" • Reinstalled package {pkg.name} version {pkg.old_version}\n"
                         text_cs += f" • Přeinstalován balíček {pkg.name} verze {pkg.old_version}\n"
@@ -106,7 +108,9 @@ def changes():
                 "postinst": "Instalační skript",
                 "postrm": "Skript po odstranění",
             }
-            date = datetime.datetime.fromtimestamp(transaction.start, tz=datetime.timezone.utc).isoformat()
+            date = datetime.datetime.fromtimestamp(
+                transaction.start, tz=datetime.timezone.utc
+            ).isoformat()
             fail_en += f"Package's {fail.pkgname} {type_en[fail.script]} script exited with error (exit code: {fail.exit_code}) during update at {date}\n"
             fail_cs += f"{type_cs[fail.script]} selhal pro balíček {fail.pkgname} (kód ukončení:  {fail.exit_code}) při aktualizaci v {date}\n"
             if fail.log:
@@ -119,10 +123,32 @@ def changes():
             fail_cs += "\n"
 
     if text_en and text_cs:
-        if subprocess.call(["create_notification", "-s", "update", text_cs.encode(), text_en.encode()]) != 0:
+        if (
+            subprocess.call(
+                [
+                    "create_notification",
+                    "-s",
+                    "update",
+                    text_cs.encode(),
+                    text_en.encode(),
+                ]
+            )
+            != 0
+        ):
             utils.report("Notification creation about update failed.")
     if fail_en and fail_cs:
-        if subprocess.call(["create_notification", "-s", "error", fail_cs.encode(), fail_en.encode()]) != 0:
+        if (
+            subprocess.call(
+                [
+                    "create_notification",
+                    "-s",
+                    "error",
+                    fail_cs.encode(),
+                    fail_en.encode(),
+                ]
+            )
+            != 0
+        ):
             utils.report("Notification creation about errors duing update failed.")
 
     with const.CHANGELOG_LAST_REPORT.open("w") as file:
@@ -157,8 +183,16 @@ def approval():
     )
     text_cs = (
         "Updater žádá o autorizaci akcí. Autorizaci můžete přidělit v administračním rozhraní reForis v záložce 'Správa balíčků — Aktualizace'."
-        + ("\nPozor: Součástí aktualizace bude automatický restart zařízení." if apprv["reboot"] == "finished" else "")
-        + ("\nTato aktualizace vyžaduje restart zařízení k úplné aplikaci." if apprv["reboot"] == "delayed" else "")
+        + (
+            "\nPozor: Součástí aktualizace bude automatický restart zařízení."
+            if apprv["reboot"] == "finished"
+            else ""
+        )
+        + (
+            "\nTato aktualizace vyžaduje restart zařízení k úplné aplikaci."
+            if apprv["reboot"] == "delayed"
+            else ""
+        )
         + changelist
         + (
             f"\n\nAktualizace bude automaticky nainstalována někdy po {installdate.isoformat()}, pakliže se neobjeví novější."
@@ -166,7 +200,12 @@ def approval():
             else ""
         )
     )
-    if subprocess.call(["create_notification", "-s", "update", text_cs.encode(), text_en.encode()]) != 0:
+    if (
+        subprocess.call(
+            ["create_notification", "-s", "update", text_cs.encode(), text_en.encode()]
+        )
+        != 0
+    ):
         utils.report("Approval notification creation failed.")
 
 

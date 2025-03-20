@@ -11,7 +11,9 @@ from .utils import daemonize, report
 
 def parse_arguments():
     """Parse script arguments"""
-    prs = argparse.ArgumentParser(description="Updater-ng supervisor used for system updating.")
+    prs = argparse.ArgumentParser(
+        description="Updater-ng supervisor used for system updating."
+    )
     prs.add_argument(
         "--daemon",
         "-d",
@@ -95,14 +97,20 @@ def main():
             wstart, wend = auto_grant_window.next_window(now)
             # Note: the random sleep could skip the allowed window so if we detect one then we tweak sleep to hit it.
             # In other words we use window start as sleep start if it is before end of the sleep.
-            sleep_start = sleep_start if wstart > sleep_end else max(sleep_start, wstart)
+            sleep_start = (
+                sleep_start if wstart > sleep_end else max(sleep_start, wstart)
+            )
             sleep_end = sleep_end if wend < sleep_start else min(sleep_end, wend)
-        random_sleep((sleep_start - now).total_seconds(), (sleep_end - now).total_seconds())
+        random_sleep(
+            (sleep_start - now).total_seconds(), (sleep_end - now).total_seconds()
+        )
         # Note: we fake the current time to hit the auto-grant-window even if we sleep right to the end
         fixednow = min(datetime.datetime.now(), sleep_end)
 
     if not wait_for_network(args.wait_for_network) and args.no_network_fail:
-        report("There seems to be no network connection to Turris servers. Please try again later.")
+        report(
+            "There seems to be no network connection to Turris servers. Please try again later."
+        )
         sys.exit(1)
 
     sys.exit(
@@ -112,7 +120,7 @@ def main():
             timeout_kill=args.timeout_kill,
             verbose=not args.quiet,
             now=fixednow,
-            reinstall_packages=args.reinstall_all
+            reinstall_packages=args.reinstall_all,
         )
     )
 

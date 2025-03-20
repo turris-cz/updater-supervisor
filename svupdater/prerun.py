@@ -2,9 +2,9 @@
 
 They allow updater-supervisor to be suspended for random amount of time or it allows it to wait for internet connection.
 """
+
 import time
 import random
-import typing
 import subprocess
 import multiprocessing
 from . import const, utils
@@ -25,7 +25,13 @@ def turris_repo_health(address: str = const.TURRIS_REPO_HEALTH_URL) -> bool:
 
     Returns True on success and False if download in any way fails.
     """
-    res = subprocess.run(['curl', address], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, check=False)
+    res = subprocess.run(
+        ["curl", address],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        check=False,
+    )
     return res.returncode == 0 and res.stdout == "ok\n"
 
 

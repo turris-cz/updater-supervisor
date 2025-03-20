@@ -1,5 +1,5 @@
-"""This just holds some constants used in updater-supervisor
-"""
+"""This just holds some constants used in updater-supervisor"""
+
 import pathlib
 
 # Path where we should found supervisor pid lock file
@@ -16,7 +16,7 @@ CHANGELOG_LAST_REPORT = pathlib.Path("/usr/share/updater/.changelog.lastreport")
 PKGUPDATE_CRASH_LOG = pathlib.Path("/tmp/updater_crash.log")
 
 # Updater run command
-PKGUPDATE_CMD = ['pkgupdate', '--batch']
+PKGUPDATE_CMD = ["pkgupdate", "--batch"]
 # pkgupdate default timeout
 PKGUPDATE_TIMEOUT = 3000
 # pkgupdate default kill timeout

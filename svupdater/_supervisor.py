@@ -1,4 +1,5 @@
 """This module is core of udpdater-supervisor. It runs and supervise updater execution."""
+
 import atexit
 import datetime
 import os
@@ -28,7 +29,11 @@ class Supervisor:
         self._stderr_thread = Thread(target=self._stderr, name="pkgupdate-stderr")
         atexit.register(self._at_exit)
 
-    def run(self, now: typing.Optional[datetime.datetime] = None, reinstall_packages: bool = False):
+    def run(
+        self,
+        now: typing.Optional[datetime.datetime] = None,
+        reinstall_packages: bool = False,
+    ):
         """Run pkgupdate"""
         if self.process is not None:
             raise Exception("Only one call to Supervisor.run is allowed.")
@@ -54,7 +59,9 @@ class Supervisor:
         # Clear old dump files
         notify.clear_logs()
         # Open process
-        self.process = subprocess.Popen(cmd, stdin=self._devnull, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.process = subprocess.Popen(
+            cmd, stdin=self._devnull, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
         self._stdout_thread.start()
         self._stderr_thread.start()
 
@@ -120,7 +127,7 @@ def run(
     verbose: bool,
     hooklist=None,
     now: typing.Optional[datetime.datetime] = None,
-    reinstall_packages: bool = False
+    reinstall_packages: bool = False,
 ):
     """Run updater."""
     pidlock = PidLock()

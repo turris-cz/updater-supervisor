@@ -1,5 +1,5 @@
-"""This module provides easy way to access mode and target of updates. That is version branch updater follow.
-"""
+"""This module provides easy way to access mode and target of updates. That is version branch updater follow."""
+
 import typing
 import euci
 

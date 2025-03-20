@@ -1,6 +1,7 @@
 """Various utility functions used in more than one other updater-supervisor
 module.
 """
+
 import os
 import sys
 import fcntl
@@ -13,8 +14,7 @@ import typing
 
 
 def report(msg: str):
-    """Report message to syslog and to terminal.
-    """
+    """Report message to syslog and to terminal."""
     if sys.stderr.isatty():
         print("\x1b[32mSupervisor\x1b[0m:" + msg, file=sys.stderr)
     else:
@@ -69,18 +69,20 @@ def daemonize() -> bool:
         os.waitpid(fpid, 0)
         return True
     # Set process name (just to distinguish it from parent process
-    sys.argv[0] = 'updater-supervisor'
+    sys.argv[0] = "updater-supervisor"
     # Second fork
     if os.fork() != 0:
         os._exit(0)
     # Setup syslog
-    syslog.openlog('updater-supervisor')
+    syslog.openlog("updater-supervisor")
     # Setup exceptions reporting hook
     sys.excepthook = lambda type, value, tb: report(
-        ' '.join(traceback.format_exception(type, value, tb)))
+        " ".join(traceback.format_exception(type, value, tb))
+    )
     # Disconnect from ubus if connected
     try:
         import ubus
+
         if ubus.get_connected():
             ubus.disconnect(False)
     except Exception as excp:

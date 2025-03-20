@@ -1,4 +1,5 @@
 """Configuration of updater's automatic execution."""
+
 import collections.abc
 import datetime
 import typing
@@ -57,7 +58,9 @@ def auto_approve_time() -> typing.Optional[int]:
     If no approval time is configured then this function returns None. This is releavant to uci config:
     updater.autorun.auto_approve_time
     """
-    value = euci.EUci().get("updater", "autorun", "auto_approve_time", dtype=int, default=0)
+    value = euci.EUci().get(
+        "updater", "autorun", "auto_approve_time", dtype=int, default=0
+    )
     return value if value > 0 else None
 
 
@@ -82,7 +85,11 @@ class ApproveWindow:
     That is used to identify the appropriate window.
     """
 
-    def __init__(self, enables: collections.abc.Collection[str], disables: collections.abc.Collection[str]):
+    def __init__(
+        self,
+        enables: collections.abc.Collection[str],
+        disables: collections.abc.Collection[str],
+    ):
         self.enables = set(enables)
         self.disables = set(disables)
         self._enables: dict[str, crontab.CronTab] = {}
@@ -117,7 +124,9 @@ class ApproveWindow:
         self._disables[entry] = crontab.CronTab(entry)
         self.disables.add(entry)
 
-    def in_window(self, now: typing.Optional[datetime.datetime] = None) -> typing.Optional[datetime.datetime]:
+    def in_window(
+        self, now: typing.Optional[datetime.datetime] = None
+    ) -> typing.Optional[datetime.datetime]:
         """Check if we are in auto-approve window.
 
         It returns None if we are not or the end of the window if we are.
@@ -156,8 +165,12 @@ def auto_approve_window() -> typing.Optional[ApproveWindow]:
     and not for disable.
     """
     uci = euci.EUci()
-    enables = uci.get("updater", "autorun", "auto_approve_start", dtype=str, list=True, default=())
-    disables = uci.get("updater", "autorun", "auto_approve_end", dtype=str, list=True, default=())
+    enables = uci.get(
+        "updater", "autorun", "auto_approve_start", dtype=str, list=True, default=()
+    )
+    disables = uci.get(
+        "updater", "autorun", "auto_approve_end", dtype=str, list=True, default=()
+    )
     return ApproveWindow(enables, disables) if enables and disables else None
 
 

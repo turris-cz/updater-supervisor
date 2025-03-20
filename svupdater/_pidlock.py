@@ -4,6 +4,7 @@ signal to this instance.
 Signals are used in updater-supervisor for simple comunication between instance holding lock and any other spawned
 instance.
 """
+
 import os
 import fcntl
 import errno
@@ -50,7 +51,7 @@ def pid_lock_content():
         os.close(file)
         return pid_lock_content()
     val = None
-    with os.fdopen(file, 'r') as filed:
+    with os.fdopen(file, "r") as filed:
         try:
             val = int(filed.readline())
         except ValueError:
@@ -59,7 +60,7 @@ def pid_lock_content():
     return val
 
 
-class PidLock():
+class PidLock:
     """Supervisor pid file to ensure that only one instance is running and that
     that specific instance can receive SIGUSR1 to inform it that it should run
     pkgupdate once again. This functionality is exported using sigusr property.
@@ -89,16 +90,16 @@ class PidLock():
 
     def _take(self, overtake):
         "Take lock if possible"
-        flags = os.O_WRONLY | os.O_SYNC | os.O_CREAT | \
-            (os.O_EXCL if not overtake else 0)
+        flags = (
+            os.O_WRONLY | os.O_SYNC | os.O_CREAT | (os.O_EXCL if not overtake else 0)
+        )
         while True:
             try:
                 self.file = os.open(PID_FILE_PATH, flags)
                 fcntl.flock(self.file, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except OSError as excp:
                 # File exists or lock couldn't been acquired
-                if excp.errno == errno.EEXIST or \
-                        excp.errno == errno.EWOULDBLOCK:
+                if excp.errno == errno.EEXIST or excp.errno == errno.EWOULDBLOCK:
                     return False
                 raise
             # There is possible race condition when file is removed before we
@@ -127,7 +128,9 @@ class PidLock():
             return True  # We have lock so return
         pid = pid_lock_content()
         if pid is None:
-            report("Taking lock for PID file failed but no pid loaded. Trying to lock pid again.")
+            report(
+                "Taking lock for PID file failed but no pid loaded. Trying to lock pid again."
+            )
             if self._take(True):
                 return True
             pid = pid_lock_content()  # Second attempt
@@ -149,17 +152,17 @@ class PidLock():
             return False
         # Signal sent successfully
         if send_signal:
-            report("Another instance is already running. It was notified to run pkgupdate again.")
+            report(
+                "Another instance is already running. It was notified to run pkgupdate again."
+            )
         else:
             report("Another instance of supervisor is already running.")
         return False
 
     def free(self):
-        """Free pid lock if we have it at the moment
-        """
+        """Free pid lock if we have it at the moment"""
         if self.file is None:
-            raise UpdaterPidLockFailureError(
-                "Can't free not taken pidlock")
+            raise UpdaterPidLockFailureError("Can't free not taken pidlock")
         file = self.file
         self.file = None
         # TODO timeout
@@ -169,11 +172,9 @@ class PidLock():
         file = None
 
     def block(self):
-        """Block read access to pid lock.
-        """
+        """Block read access to pid lock."""
         if self.file is None:
-            raise UpdaterPidLockFailureError(
-                "Can't block not taken pidlock")
+            raise UpdaterPidLockFailureError("Can't block not taken pidlock")
         # TODO timeout
         fcntl.flock(self.file, fcntl.LOCK_EX)
 
@@ -182,7 +183,6 @@ class PidLock():
         lock is acquired it is blocking read access.
         """
         if self.file is None:
-            raise UpdaterPidLockFailureError(
-                "Can't block not taken pidlock")
+            raise UpdaterPidLockFailureError("Can't block not taken pidlock")
         # TODO timeout
         fcntl.flock(self.file, fcntl.LOCK_SH)

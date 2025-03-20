@@ -15,6 +15,7 @@ Note: Only field ensure to be present is 'Package'. You should check for any oth
 fields such as 'Version', 'Status' and 'Installed-Time' but that is not verified by this library but rather given by
 OPKG.
 """
+
 import typing
 import pathlib
 import collections.abc
@@ -29,18 +30,18 @@ class Package:
 
     @staticmethod
     def _parse_field(line):
-        parsed = line.rstrip('\n').split(':', 1)
+        parsed = line.rstrip("\n").split(":", 1)
         name = parsed[0]
         value = parsed[1].strip() if len(parsed) > 1 else None
         return name, value
 
     @staticmethod
     def _commasplit(value):
-        return tuple(value.split(', '))
+        return tuple(value.split(", "))
 
     @staticmethod
     def _status(value):
-        return tuple(value.split(' '))
+        return tuple(value.split(" "))
 
     @staticmethod
     def _time(value):
@@ -67,7 +68,11 @@ class Package:
             self._add_field(name, value)
         if "Package" not in self._fields:
             return  # Can't continue
-        control_file = pathlib.Path(rootdir) / "/usr/lib/opkg/info/" / (self._fields["Package"] + ".control")
+        control_file = (
+            pathlib.Path(rootdir)
+            / "/usr/lib/opkg/info/"
+            / (self._fields["Package"] + ".control")
+        )
         if control_file.exists():
             with open(control_file, "r") as file:
                 for line in file:
@@ -92,8 +97,7 @@ class Package:
 
 
 class Status(collections.abc.Mapping):
-    """Abstraction on top of /usr/lib/opkg/status file.
-    """
+    """Abstraction on top of /usr/lib/opkg/status file."""
 
     def _next_block(self, file):
         block = []

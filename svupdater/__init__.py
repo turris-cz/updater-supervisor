@@ -9,8 +9,7 @@ from .exceptions import UpdaterDisabledError
 
 
 def opkg_lock() -> bool:
-    """Returns True if opkg lock is taken. It can be taken by any other process. It doesn't have to be updater.
-    """
+    """Returns True if opkg lock is taken. It can be taken by any other process. It doesn't have to be updater."""
     return _check_exclusive_lock(const.OPKG_LOCK, False)
 
 
@@ -22,10 +21,13 @@ def updater_supervised() -> bool:
     return _pid_locked()
 
 
-def run(wait_for_network: typing.Union[bool, int] = False, ensure_run: bool = False, timeout:
-        int = const.PKGUPDATE_TIMEOUT,
-        timeout_kill: int = const.PKGUPDATE_TIMEOUT_KILL,
-        hooklist: typing.Union[None, typing.Iterable[str]] = None):
+def run(
+    wait_for_network: typing.Union[bool, int] = False,
+    ensure_run: bool = False,
+    timeout: int = const.PKGUPDATE_TIMEOUT,
+    timeout_kill: int = const.PKGUPDATE_TIMEOUT_KILL,
+    hooklist: typing.Union[None, typing.Iterable[str]] = None,
+):
     """Run updater.
 
     This call will spawn daemon process and returns. But be aware that at first it checks if some other supervisor is
@@ -50,5 +52,6 @@ def run(wait_for_network: typing.Union[bool, int] = False, ensure_run: bool = Fa
         timeout=timeout,
         timeout_kill=timeout_kill,
         verbose=False,
-        hooklist=hooklist)
+        hooklist=hooklist,
+    )
     exit()

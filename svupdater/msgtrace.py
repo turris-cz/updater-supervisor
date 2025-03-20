@@ -3,6 +3,7 @@
 This is pretty fragile and info provided by this module should not be considered as strictly correct. There is
 possibility that some of the logs might fail to match or that logging to syslog is disabled or even syslog being broken.
 """
+
 import abc
 import datetime
 import io
@@ -161,7 +162,9 @@ class LogReader:
                     print(msg)
     """
 
-    _log_line = r"([^ ]+ +[^ ]+ [^ ]+) [^ ]+ updater\[[\d]+\]: [^ :]+:[\d]+ \([^)]*\): (.*)"
+    _log_line = (
+        r"([^ ]+ +[^ ]+ [^ ]+) [^ ]+ updater\[[\d]+\]: [^ :]+:[\d]+ \([^)]*\): (.*)"
+    )
     _lines_repre = {
         r"Target Turris OS: (.*)": MsgTargetTurrisOS,
         r"Queue ([^ ]+) of ([^/]+)/(.+)/([^/[]+)(\[(.*)\])?": MsgQueue,
@@ -186,7 +189,9 @@ class LogReader:
         self.blocking = blocking
         self._file: typing.Optional[io.BytesIO] = None
         self._re_log_line = re.compile(self._log_line)
-        self._re_lines = {re.compile(regexp): repre for regexp, repre in self._lines_repre.items()}
+        self._re_lines = {
+            re.compile(regexp): repre for regexp, repre in self._lines_repre.items()
+        }
 
     def open(self):
         """Open log for reading.
@@ -208,7 +213,9 @@ class LogReader:
         # We do not have year in syslog. We have to somehow identify it. Reasonable expectation is current year but we
         # have to cover new year so we have to check month and possibly decrease year by one.
         now = datetime.datetime.utcnow()
-        return date.replace(year=now.year if now.month >= date.month else (now.year - 1))
+        return date.replace(
+            year=now.year if now.month >= date.month else (now.year - 1)
+        )
 
     def _clasify_line(self, line):
         line = line.decode(sys.getdefaultencoding(), "ignore").rstrip("\n")
@@ -222,7 +229,9 @@ class LogReader:
                     return self._re_lines[re_line](date, lmatch)
         return None
 
-    def seek_latest(self, msgtype: typing.Type[Msg] = MsgTargetTurrisOS) -> typing.Optional[Msg]:
+    def seek_latest(
+        self, msgtype: typing.Type[Msg] = MsgTargetTurrisOS
+    ) -> typing.Optional[Msg]:
         """Seeks latest message of given type.
 
         In default that is MsgTargetTurrisOS as that is in general the first message printed by updater.
@@ -246,7 +255,9 @@ class LogReader:
         return latest_msg
 
     def seek_after(
-        self, date: datetime.datetime = datetime.datetime.utcnow(), msgtype: typing.Type[Msg] = MsgTargetTurrisOS
+        self,
+        date: datetime.datetime = datetime.datetime.utcnow(),
+        msgtype: typing.Type[Msg] = MsgTargetTurrisOS,
     ) -> typing.Optional[Msg]:
         """Seeks message of given type that happens right after given date. In default message type this looks for is
         MsgTargetTurrisOS and date is utcnow.

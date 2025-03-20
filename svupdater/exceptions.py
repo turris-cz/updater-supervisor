@@ -1,5 +1,4 @@
-"""updater-supervisor specific exceptions.
-"""
+"""updater-supervisor specific exceptions."""
 
 
 class UpdaterError(Exception):
@@ -25,8 +24,7 @@ class UpdaterPidLockFailureError(UpdaterError):
 
 
 class UpdaterNoSuchListError(UpdaterError):
-    """Exception thrown from lists.update when non-existent list is given.
-    """
+    """Exception thrown from lists.update when non-existent list is given."""
 
 
 class UpdaterNoSuchLangError(UpdaterError):
@@ -42,8 +40,7 @@ class UpdaterInvalidHookCommandError(UpdaterError):
 
 
 class UpdaterNoSuchListOptionError(UpdaterError):
-    """Exception thrown from lists.update when non-existent option for list is given.
-    """
+    """Exception thrown from lists.update when non-existent option for list is given."""
 
 
 # Backward compatible exception mapping

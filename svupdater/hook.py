@@ -1,6 +1,7 @@
 """Support for hook commands executed at the end of updater execution. It is in general a way to get notification about
 updater execution termination even if we are not the master of that process.
 """
+
 import os
 import sys
 import fcntl
@@ -20,10 +21,10 @@ def __run_command(command):
                 break
             utils.report(line.decode(sys.getdefaultencoding()))
 
-    utils.report('Running command: ' + command)
-    process = subprocess.Popen(command, stderr=subprocess.PIPE,
-                               stdout=subprocess.PIPE,
-                               shell=True)
+    utils.report("Running command: " + command)
+    process = subprocess.Popen(
+        command, stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True
+    )
     tout = threading.Thread(target=_fthread, args=(process.stdout,))
     terr = threading.Thread(target=_fthread, args=(process.stderr,))
     tout.daemon = True
@@ -32,7 +33,7 @@ def __run_command(command):
     terr.start()
     exit_code = process.wait()
     if exit_code != 0:
-        utils.report('Command failed with exit code: ' + str(exit_code))
+        utils.report("Command failed with exit code: " + str(exit_code))
 
 
 def register(command: str):
@@ -44,9 +45,10 @@ def register(command: str):
 
     "commands" has to be single line shell script.
     """
-    if '\n' in command:
+    if "\n" in command:
         raise UpdaterInvalidHookCommandError(
-            "Argument register can be only single line string.")
+            "Argument register can be only single line string."
+        )
     # Open file for writing and take exclusive lock
     file = os.open(const.POSTRUN_HOOK_FILE, os.O_WRONLY | os.O_CREAT | os.O_APPEND)
     fcntl.lockf(file, fcntl.LOCK_EX)
@@ -71,9 +73,9 @@ def register(command: str):
     # Append given arguments to file
     # Note: This takes ownership of file and automatically closes it. (at least
     # it seems that way)
-    with os.fdopen(file, 'w') as fhook:
-        fhook.write(command + '\n')
-    utils.report('Postrun hook registered: ' + command)
+    with os.fdopen(file, "w") as fhook:
+        fhook.write(command + "\n")
+    utils.report("Postrun hook registered: " + command)
 
 
 def register_list(commands: typing.Iterable[str]):
@@ -86,8 +88,7 @@ def register_list(commands: typing.Iterable[str]):
 
 
 def _run():
-    """Run all registered commands.
-    """
+    """Run all registered commands."""
     # Open file for reading and take exclusive lock
     try:
         file = os.open(const.POSTRUN_HOOK_FILE, os.O_RDWR)
@@ -99,7 +100,7 @@ def _run():
     # Note: nobody except us should be able to remove this file (because we
     # should hold pidlock) so we don't have to check if file we opened is still
     # on FS.
-    with os.fdopen(file, 'r') as fhook:
+    with os.fdopen(file, "r") as fhook:
         for line in fhook.readlines():
             __run_command(line)
         os.remove(const.POSTRUN_HOOK_FILE)
