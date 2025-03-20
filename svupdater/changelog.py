@@ -65,6 +65,13 @@ def parse_changelog() -> tuple[UpdaterTransaction, ...]:
                         )
                     else:
                         utils.report(f"Unknown line in updater's changelog: {line}")
+
+            # convert fails log to string
+            # so it matches UpdaterScriptFail dataclass definition
+            for rec in res:
+                for fail in rec["fails"]:
+                    fail["log"] = "\n".join(fail["log"])
+
             return tuple(
                 UpdaterTransaction(
                     start=t["start"],
